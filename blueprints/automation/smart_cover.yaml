@@ -142,9 +142,7 @@ blueprint:
             Auch wenn du nur Helligkeit oder Sonnenhöhe nutzen möchtest, müssen Zeiten angegeben werden — sie definieren das Morgen- (hoch) und Abendfenster (runter).
             <br /><br />
             <ins>Calendar Control</ins><br />
-            You can use a Home Assistant calendar to define when covers should be open or closed.
-            Create calendar events with titles "Open Cover" (for daytime) or "Close Cover" (for evening).
-            The automation reacts immediately when events start or end.
+            Zeitfelder in diesem Blueprint zur Steuerung verwenden.
 
 
             </details>
@@ -224,17 +222,17 @@ blueprint:
 
 
 
-            **Hardware-Specific Details**
+            **Hardware-spezifische Details**
 
 
-            <ins>Why use custom actions instead of default services?</ins><br />
+            <ins>Warum eigene Aktionen statt Standard-Dienste?</ins><br />
 
-            Some devices (e.g., Shelly, Homematic) have issues when 'set_cover_position' and 'set_cover_tilt_position' are executed sequentially.
+            ition' are executed sequentially.
 
 
-            **Solutions:**
+            **Lösungen:**
 
-            - Shelly: Use script [cover_position_tilt.yaml](https://gist.github.com/lukasvice/b364724d84c3ac4e160f7a7d8fa37066)
+            - Shelly: Skript [cover_position_tilt.yaml] verwenden(https://gist.github.com/lukasvice/b364724d84c3ac4e160f7a7d8fa37066)
 
             - Homematic: Use custom service [homematicip_local.set_cover_combined_position](https://github.com/SukramJ/custom_homematic?tab=readme-ov-file#homematicip_localset_cover_combined_position)
 
@@ -322,23 +320,23 @@ blueprint:
             <br /><br />
             <strong>Markise:</strong> Position 0% = eingefahren (geschlossen), 100% = ausgefahren (offen). Beschattung nutzt höhere Positionen.
             <br /><br />
-            ⚠️ <strong>Note:</strong> Ventilation and tilt features are not available for awnings.
+            ⚠️ <strong>Hinweis:</strong> Lüftung und Lamellensteuerung sind für Markisen nicht verfügbar.
             <br /><br />
             <details>
-            <summary><code><strong>HIER KLICKEN:</strong> Position value examples</code></summary>
+            <summary><code><strong>HIER KLICKEN:</strong> Positionswerte – Beispiele</code></summary>
 
             <strong>For Blinds/Shutters:</strong><br />
-            - Open Position: 100% (fully up)<br />
-            - Shading Position: 25% (partially down for sun protection)<br />
-            - Ventilate Position: 30% (slightly down for air flow)<br />
-            - Close Position: 0% (fully down)<br />
+            - Öffnungsposition: 100% (vollständig oben)<br />
+            - Beschattungsposition: 25% (teilweise unten für Sonnenschutz)<br />
+            - Lüftungsposition: 30% (leicht unten für Luftzufuhr)<br />
+            - Schließposition: 0% (vollständig unten)<br />
             <br />
             <strong>For Awnings:</strong><br />
-            - Open Position: 0% (retracted/closed)<br />
-            - Shading Position: 75% (extended for sun protection)<br />
-            - Close Position: 100% (fully extended)<br />
+            - Öffnungsposition: 0% (eingefahren/geschlossen)<br />
+            - Beschattungsposition: 75% (ausgefahren für Sonnenschutz)<br />
+            - Schließposition: 100% (vollständig ausgefahren)<br />
             <br />
-            <em>Note: Ventilate Position is not used for awnings.</em>
+            <em>Hinweis: Lüftungsposition wird für Markisen nicht verwendet.</em>
 
             </details>
           default: "rolladen"
@@ -470,7 +468,7 @@ blueprint:
             Verzögerung zwischen <em>set_cover_position</em> und <em>set_cover_tilt_position</em>.
             Nur bei Lamellensteuerung notwendig.
             Trennt die beiden Befehle zeitlich.
-            <br /><br />`Optional`
+            <br /><br /><strong style="color:#e74c3c;">Optional</strong>
           default: 0
           selector:
             number:
@@ -504,7 +502,7 @@ blueprint:
           description: >-
             Wenn aktiviert kann gewählt werden ob die Jalousie vor dem Neigen auf eine neue Position zuerst geschlossen wird.
             In manchen Fällen kann schrittweises Neigen zu falschen Positionen führen, weil der Motor eine Mindestlaufzeit benötigt.
-            Thus the blinds will be preclosed to 0 and then run to the target position.
+            Die Jalousie fährt zuerst auf 0 und dann auf die Zielposition.
           default: cover_tilt_reposition_disabled
           selector:
             select:
@@ -694,7 +692,7 @@ blueprint:
           description: >-
             Wie oben, aber für Nicht-Werktage.
             <br />
-            Please do not enter 0:00, because that would be the next day!
+            Bitte keine 0:00 eingeben — das wäre der nächste Tag!
           default: "22:00:00"
           selector:
             time: {}
@@ -708,7 +706,7 @@ blueprint:
             Empfehlung: [Workday Integration](https://www.home-assistant.io/integrations/workday/) verwenden.
             <br /><br />
             Beispiel: `binary_sensor.workday_today`
-            <br /><br />`Optional`
+            <br /><br /><strong style="color:#e74c3c;">Optional</strong>
           default: []
           selector:
             entity:
@@ -773,7 +771,7 @@ blueprint:
 
         brightness_hysteresis:
           name: "🔅 Helligkeits-Hysterese"
-          description: "Cover will open only when brightness exceeds (brightness_up + hysteresis), and close only when it drops below (brightness_down - hysteresis). Prevents frequent open/close cycles."
+          description: "Öffnet nur wenn Helligkeit (Öffnungswert + Hysterese) überschreitet, schließt nur wenn sie unter (Schließwert - Hysterese) fällt. Verhindert häufige Zyklen."
           default: 0
           selector:
             number:
@@ -812,7 +810,7 @@ blueprint:
             <li>-12° Nautische Morgendämmerung</li>
             <li>-18° Astronomische Morgendämmerung/Nacht</li>
             </ul>
-            <br />`Optional` / `Shading`
+            <br /><strong style="color:#e74c3c;">Optional</strong> / `Shading`
           default: "sun.sun"
           selector:
             entity:
@@ -845,7 +843,7 @@ blueprint:
             **📊 Dynamisch-Modus**
             <br />
             Nutzt nur Sehe sensor values (Sun Elevation Up/Down Sensor).
-            Fixed values are ignored. Sensors must be configured and provide valid numeric values.
+            Feste Werte werden ignoriert. Sensoren müssen konfiguriert sein und gültige numerische Werte liefern.
             <br /><br />
             **🔄 Hybrid-Modus**
             <br />
@@ -853,7 +851,7 @@ blueprint:
             Beispiel: Sensor=2,0° + Fest=1,5° = Schwellwert 3,5°.
             Ermöglicht saisonale Anpassung mit manuellem Feintuning.
             <br /><br />
-            `Optional` / `Default: Fixed`
+            <strong style="color:#e74c3c;">Optional</strong> / `Default: Fixed`
           default: "fixed"
           selector:
             select:
@@ -946,12 +944,10 @@ blueprint:
             <summary><code><strong>HIER KLICKEN:</strong> Weitere Beschreibungen</code></summary>
 
 
-            It must be a binary two-way contact sensor.
-            If a three-way sensor is available, it must be converted to a binary two-way sensor using a [template sensor](https://www.home-assistant.io/integrations/template/).
-            See also the [following posts](https://community.home-assistant.io/t/cover-control-automation-cca-a-comprehensive-and-highly-configurable-roller-blind-blueprint/680539/593) in the forum.
+            Es muss ein binärer Zwei-Wege-Kontaktsensor sein.
+            Bei Drei-Wege-Sensoren diesen mit einem [Template-Sensor](https://www.home-assistant.io/integrations/template/) umwandeln.
 
-
-            <strong>Important note:</strong> Please do not enter the same sensor in both fields for the contact sensors. This does not work and leads to strange situations.
+            <strong>Wichtiger Hinweis:</strong> Nicht denselben Sensor in beiden Kontaktsensor-Feldern verwenden. Das funktioniert nicht und führt zu merkwürdigem Verhalten.
 
             </details>
           default: []
@@ -975,12 +971,10 @@ blueprint:
             <summary><code><strong>HIER KLICKEN:</strong> Weitere Beschreibungen</code></summary>
 
 
-            It must be a binary two-way contact sensor.
-            If a three-way sensor is available, it must be converted to a binary two-way sensor using a [template sensor](https://www.home-assistant.io/integrations/template/).
-            See also the [following posts](https://community.home-assistant.io/t/cover-control-automation-cca-a-comprehensive-and-highly-configurable-roller-blind-blueprint/680539/593) in the forum.
+            Es muss ein binärer Zwei-Wege-Kontaktsensor sein.
+            Bei Drei-Wege-Sensoren diesen mit einem [Template-Sensor](https://www.home-assistant.io/integrations/template/) umwandeln.
 
-
-            <strong>Important note:</strong> Please do not enter the same sensor in both fields for the contact sensors. This does not work and leads to strange situations.
+            <strong>Wichtiger Hinweis:</strong> Nicht denselben Sensor in beiden Kontaktsensor-Feldern verwenden. Das funktioniert nicht und führt zu merkwürdigem Verhalten.
 
             </details>
           default: []
@@ -1018,39 +1012,38 @@ blueprint:
             <summary><code><strong>HIER KLICKEN:</strong> Weitere Beschreibungen</code></summary>
 
 
-              - <ins>Disables the drive delay when ventilation starts (window opens/tilts):</ins>
+              - <ins>Fahrverzögerung bei Lüftungsstart deaktivieren:</ins>
                 <br />
-                By default, the "Fixed Drive Delay" and "Random Drive Delay" are applied to all cover movements — including ventilation start.
-                If you use a large fixed delay to stagger many covers (e.g. for Somfy RF queue limits), this can feel sluggish when only one or two covers need to react to a window opening.
+                Standardmäßig gilt die Fahr- und Zufallsverzögerung für alle Fahrbefehle — auch beim Lüftungsstart.
+                Bei großen Verzögerungen (z.B. für Somfy RF) kann die Reaktion bei Fensteröffnung träge wirken.
                 <br />
-                Enable this option to skip the drive delay when a window opens or tilts. The delay still applies to all other movements (open, close, shading).
+                Diese Option überspringt die Verzögerung wenn ein Fenster öffnet oder kippt. Für alle anderen Bewegungen bleibt sie aktiv.
                 <br /><br />
-              - <ins>Enables a calculated delay after the window is closed:</ins>
+              - <ins>Berechnete Verzögerung nach Fensterschließen aktivieren:</ins>
                 <br />
-                Normally, when the window contact is closed, there is no delay in the upcoming drives. If you do want this, you can activate it here.
+                Normalerweise gibt es keine Verzögerung wenn der Fensterkontakt schließt. Diese Option aktiviert die Verzögerung auch dann.
                 <br /><br />
-                The "Fixed Drive Delay" and "Random Drive Delay" settings which are already used everywhere are then used.
+                Die konfigurierten Fahr- und Zufallsverzögerungen werden dann verwendet.
                 <br /><br />
-              - <ins>Lower cover to the ventilation position when the window tilts and cover is above:</ins>
+              - <ins>Abdeckung auf Lüftungsposition fahren wenn Fenster kippt und oben ist:</ins>
                 <br />
-                When the window is tilted and the cover is currently above the ventilation position, drive it <strong>down</strong> to the ventilation position.
-                Without this option, the cover stays where it is in that case.
+                Wenn das Fenster gekippt und die Abdeckung oberhalb der Lüftungsposition ist, fährt sie auf Lüftungsposition.
+                Ohne diese Option bleibt sie wo sie ist.
                 <br />
-                Note: This option takes effect for any cover position above the ventilation position. The dedicated full → tilt transition has its own opt-out below.
+                Hinweis: Gilt für jede Position oberhalb der Lüftungsposition.
                 <br /><br />
-              - <ins>Using the ventilation position when the sun shade is ended:</ins>
+              - <ins>Lüftungsposition beim Beschattungsende verwenden:</ins>
                 <br />
-                The cover can also be moved to the ventilation position when the sun protection/sun shading is ended.
-                Normally, the cover would be fully opened when the shading is ended.
+                Die Abdeckung kann auf Lüftungsposition fahren wenn Beschattung endet statt vollständig zu öffnen.
                 <br />
-                To be honest, it makes no sense to switch to the ventilation position during the day if more air can flow in when the cover is open.
+                Hinweis: Bei geöffneter Abdeckung strömt mehr Luft ein — diese Option ergibt tagsüber wenig Sinn.
                 <br /><br />
-              - <ins>Keep cover at open position when window goes from fully opened to tilted:</ins>
+              - <ins>Oben lassen wenn Fenster von geöffnet auf gekippt wechselt:</ins>
                 <br />
-                When the window was previously fully opened (cover at the open position) and is then tilted, the cover would normally
-                be lowered to the partial ventilation position. Enable this option to keep the cover at the open position in that case.
+                Wenn das Fenster vorher vollständig offen war und dann gekippt wird, würde die Abdeckung normalerweise
+                auf Lüftungsposition fahren. Diese Option hält sie oben.
                 <br />
-                Useful e.g. for a terrace door: after coming back inside and tilting the door, the cover stays up instead of moving down.
+                Nützlich z.B. für Terrassentüren: Nach dem Reinkommen und Kippen bleibt die Abdeckung oben.
 
             </details>
           default: []
@@ -1105,8 +1098,8 @@ blueprint:
             **⚠️ Race Condition: Fenster geschlossen + Bewohner ausgeschaltet kurz nacheinander:**
 
             Wenn beide Sensoren innerhalb von Millisekunden schalten, kann die Automation den Bewohner noch als anwesend sehen
-            at trigger time and incorrectly close the cover.
-            Setting this delay to **0.5–1 second** gives the resident sensor enough
+            kann die Automation den Bewohner noch als anwesend sehen und die Abdeckung fälschlicherweise schließen.
+            Eine Verzögerung von **0,5–1 Sekunde** gibt dem Bewohnersensor genug
             time to settle before CCA makes its routing decision.
           default: 3
           selector:
@@ -1130,30 +1123,30 @@ blueprint:
         <summary><code><strong>HIER KLICKEN:</strong> How the shading process works (two phases)</code></summary>
 
 
-        **Phase 1 — Pending (trigger):**
+        **Phase 1 — Ausstehend (Trigger):**
 
-        When ANY configured shading trigger fires (sun azimuth, elevation, brightness, temperature, forecast), the automation arms a "pending" timer. This sets the status to <em>t_shading_start_pending</em> and starts the waiting time.
-
-
-        **Phase 2 — Execution (after waiting time):**
-
-        After the waiting time expires, the automation re-evaluates ALL configured conditions. Only if they are <strong>still valid</strong> at this point, the cover actually moves to the shading position.
+        Wenn ein konfigurierter Beschattungs-Trigger auslöst (Azimut, Höhe, Helligkeit, Temperatur, Vorhersage), wird ein "Ausstehend"-Timer gestartet. Der Status wird auf <em>t_shading_start_pending</em> gesetzt.
 
 
-        **Common reasons why shading stays stuck at "pending":**
+        **Phase 2 — Ausführung (nach Wartezeit):**
 
-        - <strong>Forecast temperature sensor misconfigured:</strong> If using a weather entity, make sure it provides temperature data (check Developer Tools → States). If the forecast returns "unavailable" or "unknown", the condition fails.
-
-        - <strong>Time window mismatch:</strong> Shading only executes within the configured daytime window (between earliest opening time and latest closing time). If no time control is configured, enable "Disable Time Control" or configure valid times.
-
-        - <strong>"Additional Condition" blocks execution:</strong> The "Additional Condition When Activating Sun Shading" is checked at execution time. If configured, it must be true for the cover to move.
-
-        - <strong>Cover already at/below shading position:</strong> If the cover is already at or below the shading position, no movement occurs (but the state is saved).
-
-        - <strong>Helper shows stale data:</strong> Check the input_text helper entity in Developer Tools → States. Look for <code>"pnd":"beg"</code> and verify that <code>"ts.due"</code> is a valid future timestamp.
+        Nach der Wartezeit werden ALLE konfigurierten Bedingungen erneut geprüft. Nur wenn sie <strong>noch gültig</strong> sind, fährt die Abdeckung auf Beschattungsposition.
 
 
-        **Debugging tip:** Enable the Logbook option and check the automation trace after the waiting time expires. Look for the <em>t_shading_start_execution</em> trigger — if it doesn't appear, the template trigger may not be evaluating correctly. If it appears but the trace shows "conditions not met", check which specific condition fails using Developer Tools → Template.
+        **Häufige Gründe warum Beschattung bei "ausstehend" hängt:**
+
+        - <strong>Vorhersage-Sensor falsch konfiguriert:</strong> Sicherstellen dass die Wetter-Entity Temperaturdaten liefert (Entwickler-Tool → Zustände). Bei "unavailable" oder "unknown" schlägt die Bedingung fehl.
+
+        - <strong>Zeitfenster passt nicht:</strong> Beschattung läuft nur innerhalb des konfigurierten Tageszeitfensters. Wenn keine Zeitsteuerung konfiguriert ist, "Zeitsteuerung deaktivieren" aktivieren oder gültige Zeiten eintragen.
+
+        - <strong>"Zusatzbedingung" blockiert Ausführung:</strong> Die "Zusatzbedingung Beschattung starten" wird bei Ausführung geprüft. Wenn konfiguriert, muss sie wahr sein.
+
+        - <strong>Abdeckung bereits in/unter Beschattungsposition:</strong> Wenn die Abdeckung bereits in oder unter der Beschattungsposition ist, erfolgt keine Fahrt (der Status wird gespeichert).
+
+        - <strong>Helper zeigt veraltete Daten:</strong> Input-Text-Helper im Entwickler-Tool → Zustände prüfen. Nach <code>"pnd":"beg"</code> suchen und prüfen ob <code>"ts.due"</code> ein gültiger zukünftiger Zeitstempel ist.
+
+
+        **Debugging-Tipp:** Den Automation-Trace nach Ablauf der Wartezeit prüfen. Nach dem Trigger <em>t_shading_start_execution</em> suchen — wenn er nicht erscheint, wertet der Template-Trigger nicht korrekt aus. Falls "Bedingungen nicht erfüllt" erscheint, im Entwickler-Tool → Template prüfen welche Bedingung fehlschlägt.
 
         </details>
       icon: mdi:shield-sun-outline
@@ -1169,32 +1162,32 @@ blueprint:
             <summary><code><strong>HIER KLICKEN:</strong> Wie START-Bedingungen funktionieren</code></summary>
 
 
-            **Required (AND) conditions for START:**
+            **Pflichtbedingungen (UND) für START:**
 
-            - ALL selected conditions must be valid
+            - ALLE ausgewählten Bedingungen müssen gültig sein
 
-            - If ANY fails, shading will NOT start
+            - Wenn EINE fehlschlägt, startet die Beschattung NICHT
 
-            - Use for critical conditions
-
-
-            **Example - Conservative approach:**
-
-            - Select ALL: Azimuth, Elevation, Brightness, Temperature
-
-            - Result: Shading only when everything is perfect
+            - Für kritische Bedingungen verwenden
 
 
-            **Example - Flexible approach:**
+            **Beispiel – Konservativer Ansatz:**
 
-            - Select: Azimuth, Elevation (sun position)
+            - ALLE wählen: Azimut, Höhe, Helligkeit, Temperatur
 
-            - Leave others for OR list
-
-            - Result: Sun must be in range, plus other criteria
+            - Ergebnis: Beschattung nur wenn alles stimmt
 
 
-            **Important:** Conditions without a configured sensor are automatically satisfied (skipped). You can safely leave all conditions selected — only those with a matching sensor configured below will actually be evaluated. However, if a sensor IS configured but returns "unavailable" or "unknown", the condition will FAIL.
+            **Beispiel – Flexibler Ansatz:**
+
+            - Wählen: Azimut, Höhe (Sonnenposition)
+
+            - Rest in die ODER-Liste
+
+            - Ergebnis: Sonne muss im Bereich sein, plus weitere Kriterien
+
+
+            **Wichtig:** Bedingungen ohne konfigurierten Sensor werden automatisch erfüllt (übersprungen). Alle Bedingungen können ausgewählt bleiben — nur jene mit konfiguriertem Sensor werden ausgewertet. Wenn ein Sensor jedoch "unavailable" oder "unknown" zurückgibt, schlägt die Bedingung FEHL.
 
             </details>
           default:
@@ -1234,29 +1227,29 @@ blueprint:
             <summary><code><strong>HIER KLICKEN:</strong> Wann ODER-Bedingungen verwenden</code></summary>
 
 
-            **Optional (OR) conditions for START:**
+            **Optionale (ODER) Bedingungen für START:**
 
-            - At least ONE must be valid
+            - Mindestens EINE muss gültig sein
 
-            - Useful for redundant sensors
+            - Nützlich für redundante Sensoren
 
-            - Useful for alternative triggers
-
-
-            **Example - Redundant temperature sensors:**
-
-            - AND: Azimuth, Elevation, Brightness
-
-            - OR: Temp1, Temp2
-
-            - Result: Sun + Brightness + (Temp1 OR Temp2)
-
-            - If Temp1 fails, Temp2 can still trigger
+            - Nützlich für alternative Trigger
 
 
-            **Combined logic:**
+            **Beispiel – Redundante Temperatursensoren:**
 
-            - Final = (ALL AND conditions) AND (ONE OR condition)
+            - UND: Azimut, Höhe, Helligkeit
+
+            - ODER: Temp1, Temp2
+
+            - Ergebnis: Sonne + Helligkeit + (Temp1 ODER Temp2)
+
+            - Wenn Temp1 fehlschlägt, kann Temp2 noch auslösen
+
+
+            **Kombinierte Logik:**
+
+            - Gesamt = (ALLE UND-Bedingungen) UND (EINE ODER-Bedingung)
 
             </details>
           default: []
@@ -1289,31 +1282,31 @@ blueprint:
             <summary><code><strong>HIER KLICKEN:</strong> Wie ENDE-Bedingungen funktionieren</code></summary>
 
 
-            **Required (AND) conditions for END:**
+            **Pflichtbedingungen (UND) für ENDE:**
 
-            - ALL selected conditions must become invalid
+            - ALLE ausgewählten Bedingungen müssen ungültig werden
 
-            - Shading continues if ANY is still valid
+            - Beschattung bleibt wenn EINE noch gültig ist
 
-            - Use for stable shading (avoid flickering)
-
-
-            **Example - Quick response:**
-
-            - AND: (empty)
-
-            - OR: Azimuth, Elevation, Brightness
-
-            - Result: End immediately when ANY condition fails
+            - Für stabile Beschattung (Flackern vermeiden)
 
 
-            **Example - Stable shading:**
+            **Beispiel – Schnelle Reaktion:**
 
-            - AND: Brightness, Temp1
+            - UND: (leer)
 
-            - OR: (empty)
+            - ODER: Azimut, Höhe, Helligkeit
 
-            - Result: Keep shading until BOTH brightness AND temp drop
+            - Ergebnis: Sofort beenden wenn EINE Bedingung wegfällt
+
+
+            **Beispiel – Stabile Beschattung:**
+
+            - UND: Helligkeit, Temp1
+
+            - ODER: (leer)
+
+            - Ergebnis: Beschattung bis BEIDE (Helligkeit UND Temp) abfallen
 
 
             **Tip:** Usually END should be MORE permissive than START
@@ -1349,34 +1342,34 @@ blueprint:
             <summary><code><strong>HIER KLICKEN:</strong> Typische ENDE-Konfigurationen</code></summary>
 
 
-            **Optional (OR) conditions for END:**
+            **Optionale (ODER) Bedingungen für ENDE:**
 
-            - At least ONE must become invalid to end
+            - Mindestens EINE muss ungültig werden um zu beenden
 
-            - Shading ends quickly when conditions change
-
-
-            **Recommended: Quick sun position response**
-
-            - AND: (empty)
-
-            - OR: Azimuth, Elevation
-
-            - Result: End immediately when sun moves out of range
+            - Beschattung endet schnell wenn Bedingungen wechseln
 
 
-            **Alternative: Keep shading longer**
+            **Empfehlung: Schnelle Reaktion auf Sonnenposition**
 
-            - AND: Azimuth, Elevation
+            - UND: (leer)
 
-            - OR: Brightness, Temperature
+            - ODER: Azimut, Höhe
 
-            - Result: End only when sun is wrong AND (dark OR cold)
+            - Ergebnis: Sofort beenden wenn Sonne den Bereich verlässt
 
 
-            **Combined logic:**
+            **Alternative: Beschattung länger halten**
 
-            - Final = (ALL AND invalid) OR (ONE OR invalid)
+            - UND: Azimut, Höhe
+
+            - ODER: Helligkeit, Temperatur
+
+            - Ergebnis: Beenden nur wenn Sonne weg UND (dunkel ODER kalt)
+
+
+            **Kombinierte Logik:**
+
+            - Gesamt = (ALLE UND ungültig) ODER (EINE ODER ungültig)
 
             </details>
           default:
@@ -1576,26 +1569,22 @@ blueprint:
             Dies ist die empfohlene Methode für vorhersagebasierte Beschattung.
 
             <details>
-              <summary><code><strong>HIER KLICKEN:</strong> How to configure</code></summary>
+              <summary><code><strong>HIER KLICKEN:</strong> Wie konfigurieren</code></summary>
 
-              Select a weather entity (e.g., weather.home, weather.openweathermap).
+              Eine Wetter-Entity wählen (z.B. weather.home, weather.openweathermap).
 
-              The system will:
+              Das System wird:
 
-              - Query forecast temperature for comparison
+              - Vorhersage-Temperatur für den Vergleich abfragen
 
-              - Check weather conditions if configured
+              - Wetterbedingungen prüfen wenn konfiguriert
 
-              - Use daily or hourly forecast based on your selection below
+              - Tägliche oder stündliche Vorhersage je nach Auswahl unten verwenden
 
-              **Most users should use this field.**
+              **Die meisten Nutzer sollten dieses Feld verwenden.**
 
-              The idea is that it can happen, especially in spring, that the value of the
-              <em>Forecast Temperature Value</em> is exceeded by strong solar radiation and
-              the shading would be started. However, in spring you may not want shading,
-              but the solar radiation as a welcome, free heating is desired.
-              So you can define via the forecast that shading is only started at an
-              expected daily maximum temperature.
+              Im Frühling kann die <em>Vorhersage-Temperaturschwelle</em> durch starke Sonneneinstrahlung überschritten werden, obwohl man noch keine Beschattung möchte — die Wärme ist willkommen.
+              Über die Vorhersage lässt sich festlegen, dass Beschattung erst ab einer erwarteten Tagesmax-Temperatur startet.
 
             </details>
           default: []
@@ -1614,12 +1603,12 @@ blueprint:
             <br /><br />
             Hinweis: Die Wetter-Entity muss `weather.get_forecasts`, which was introduced in Home Assistant 2023.9.
             <br /><br />
-            Alternatively, you can choose **not to use** the forecast service at all.
-            In that case, the current weather attributes from the weather entity will be used instead.
+            Alternativ kann die Vorhersage vollständig deaktiviert werden.
+            In diesem Fall werden die aktuellen Wetterattribute der Wetter-Entity verwendet.
             <br /><br />
-            **Recommendation:** Using the **daily forecast** is generally preferred for sun shading purposes.
+            **Empfehlung:** Die **tägliche Vorhersage** ist für Beschattungszwecke generell bevorzugt.
             <br /><br />
-            **Ignored when using temperature sensor below.**
+            **Wird ignoriert wenn unten ein Temperatursensor konfiguriert ist.**
           default: daily
           selector:
             select:
@@ -1639,15 +1628,15 @@ blueprint:
             <details>
               <summary><code><strong>HIER KLICKEN:</strong> When to use this</code></summary>
 
-              Use this if:
+              Verwende dies wenn:
 
-              - Your weather integration provides dedicated forecast sensors
+              - Deine Wetter-Integration eigene Vorhersage-Sensoren bereitstellt
 
-              - You want better performance (no forecast service calls)
+              - Du bessere Performance willst (keine Vorhersage-Dienstaufrufe)
 
-              - You have custom template sensors for forecast temperature
+              - Du eigene Template-Sensoren für die Vorhersage-Temperatur hast
 
-              Examples:
+              Beispiele:
 
               - sensor.pirateweather_daytime_high_apparent_temperature_0d
 
@@ -1655,9 +1644,9 @@ blueprint:
 
               - sensor.openweathermap_forecast_temperature
 
-              **Priority:** If configured, this takes priority over weather entity above.
+              **Priorität:** Wenn konfiguriert, hat dies Vorrang vor der Wetter-Entity oben.
 
-              **Limitation:** Weather condition checks are not available with sensors.
+              **Einschränkung:** Wetterbedingungsprüfungen sind mit Sensoren nicht verfügbar.
 
             </details>
 
@@ -1673,23 +1662,23 @@ blueprint:
               Definiert den <strong>Mindest-Temperaturschwellwert</strong> basierend auf der Vorhersage ab dem Beschattung aktiviert wird.
               Wenn die Vorhersagetemperatur diesen Wert überschreitet, reagiert das System entsprechend.
 
-              - Minimum temperature threshold for shading activation.
+              - Mindest-Temperaturschwelle für die Beschattungsaktivierung.
 
-              - Works with both weather entity and temperature sensor.
+              - Funktioniert mit Wetter-Entity und Temperatursensor.
 
-              - Leave empty to disable temperature-based forecast shading.
+              - Leer lassen um vorhersagebasierte Temperaturbeschattung zu deaktivieren.
 
               <details>
-                <summary><code><strong>HIER KLICKEN:</strong> Further description</code></summary>
+                <summary><code><strong>HIER KLICKEN:</strong> Weitere Beschreibung</code></summary>
 
-                To enhance reliability, the system can compare this threshold against two sources:
+                Zur Erhöhung der Zuverlässigkeit kann der Schwellwert gegen zwei Quellen verglichen werden:
 
-                - The forecasted temperature (this comparison is always active)
+                - Die Vorhersage-Temperatur (immer aktiv)
 
-                - Temperature Sensor 2 (e.g. outdoor) (can be enabled via the checkbox in the next configuration field)
+                - Temperatursensor 2 (z.B. Außen) (über Checkbox im nächsten Feld aktivierbar)
 
 
-                <strong>Troubleshooting:</strong> If this condition is in your AND list, the forecast source (weather entity or temperature sensor above) MUST provide a valid numeric temperature value. Check Developer Tools → States that your weather entity or sensor shows a numeric temperature, not "unavailable" or "unknown". If the forecast returns no data, this condition will fail and block shading execution.
+                <strong>Fehlerbehebung:</strong> Wenn diese Bedingung in der UND-Liste ist, muss die Vorhersagequelle (Wetter-Entity oder Sensor) einen gültigen numerischen Temperaturwert liefern. Im Entwickler-Tool → Zustände prüfen. Bei "unavailable" oder "unknown" schlägt diese Bedingung fehl.
 
               </details>
           default: []
@@ -1727,7 +1716,7 @@ blueprint:
             Folgende Wetterbedingungen beim Aktivieren der Beschattung prüfen.
             Wetterbedingungen können nur geprüft werden wenn eine Wetter-Entity konfiguriert ist.
             <br /><br />
-            **Only works with weather entity, not with temperature sensor.**
+            **Funktioniert nur mit Wetter-Entity, nicht mit Temperatursensor.**
             <br />
             Be cautious: weather forecasts may not always be accurate.
           default: []
@@ -1785,7 +1774,7 @@ blueprint:
             Die Abdeckung fährt nur wenn die Bedingungen <strong>noch gültig</strong> sind.
             Diese Wartezeit wird auch für die periodischen Bedingungsprüfungen im Wiederholungszyklus verwendet.
             <br /><br />
-            <strong>If shading stays at "pending" and never executes:</strong> The conditions were no longer met after the waiting time expired. Check the automation trace for <em>t_shading_start_execution</em>.
+            <strong>Wenn Beschattung bei "ausstehend" hängt:</strong> Die Bedingungen waren nach der Wartezeit nicht mehr erfüllt. Check the automation trace for <em>t_shading_start_execution</em>.
           default: 300
           selector:
             number:
@@ -1863,7 +1852,7 @@ blueprint:
           <br />
           (3) Wenn der Bewohnersensor switches to ‘off/false’, the cover is automatically opened in the morning.
           <br />
-          (4) In addition, the usual automatic opening of the cover is prevented as long as the sensor is set to ‘on/true’ or the resident.
+          (4) Zusätzlich wird das automatische Öffnen verhindert solange der Sensor aktiv ist to ‘on/true’ or the resident.
           <br /><br />
           Alle Einstellungen sind optional.
         </small></p></center>
@@ -1920,22 +1909,20 @@ blueprint:
             Folgende Aktionen nach manuellen Positionsänderungen ignorieren.
 
             <details>
-            <summary><code><strong>HIER KLICKEN:</strong> Further description</code></summary>
+            <summary><code><strong>HIER KLICKEN:</strong> Weitere Beschreibung</code></summary>
 
 
-            Ultimately, this means that the cover will not be opened, closed, etc.
-            if a manual interaction has previously been made, e.g. using a wall switch.
+            Das bedeutet: Die Abdeckung wird nicht automatisch geöffnet, geschlossen etc. wenn zuvor ein manueller Eingriff stattgefunden hat — z.B. über einen Wandschalter.
 
 
-            The reason behind this is that the human being wins with his decision and his
-            conscious decision is weighted higher than the upcoming action of the automation.
+            Der Grund: Die bewusste Entscheidung des Nutzers hat Vorrang gegenüber der geplanten automatischen Aktion.
 
 
-            As soon as a cover has been moved manually, the status is recorded in the Cover Status Helper.
-            This usually means that a person has deliberately decided against a status.
+            Sobald eine Abdeckung manuell bewegt wird, wird der Status im Cover-Status-Helper gespeichert.
+            Das bedeutet, dass jemand bewusst eine andere Position gewählt hat.
 
-              - If option is not activated: The covers are moved even if a manual correction has been made.
-              - If option is activated: The action to open, close, etc. is not performed because a conscious decision was made to do otherwise due to a manual intervention.
+              - Wenn deaktiviert: Abdeckungen werden bewegt auch wenn ein manueller Eingriff stattgefunden hat.
+              - Wenn aktiviert: Öffnen, Schließen etc. wird nicht ausgeführt weil eine bewusste manuelle Entscheidung getroffen wurde.
 
 
 
@@ -2010,7 +1997,7 @@ blueprint:
           name: "🕛 Fixer Fahrverzögerung"
           description: >-
             Feste Verzögerung vor jeder Fahrt zur Vermeidung von Funk-Interferenzen.
-            <br /><br />`Optional`
+            <br /><br /><strong style="color:#e74c3c;">Optional</strong>
           default: 0
           selector:
             number:
@@ -2024,7 +2011,7 @@ blueprint:
           name: "🕛 Zufällige Fahrverzögerung"
           description: >-
             Zufällige Zusatzverzögerung zur zeitlichen Staffelung mehrerer Abdeckungen.
-            <br /><br />`Optional`
+            <br /><br /><strong style="color:#e74c3c;">Optional</strong>
           default: 5
           selector:
             number:
@@ -2047,12 +2034,12 @@ blueprint:
           name: "❓ Globale Zusatzbedingung"
           description: >-
             Diese Bedingung steuert die Ausführung der <ins>gesamten</ins> Automation dynamisch von außen — z.he blueprint configuration.
-            With this option you could enable a party mode.
+            Mit dieser Option kann z.B. ein Party-Modus aktiviert werden.
             <br /><br />
             Wenn das Ergebnis <ins>wahr</ins> ist, läuft die Automation weiter.<br />
             Ist es <ins>falsch</ins>, stoppt die Automation an dieser Stelle.
             <br /><br />
-            Forcing Open/Close/Shading/Ventilation is therefore only possible if this condition remains empty or becomes valid.
+            Erzwungenes Öffnen/Schließen/Beschatten/Lüften ist daher nur möglich wenn diese Bedingung leer bleibt oder wahr wird.
           default: []
           selector:
             condition: {}
@@ -2145,11 +2132,11 @@ blueprint:
 
             **Continuous Status Tracking:**
 
-            - The helper constantly monitors what the cover *should* be doing (open, close, shading, ventilate)
+            - Der Helper überwacht ständig was die Abdeckung *tun sollte* (öffnen, schließen, beschatten, lüften)
 
-            - Even when a force function is active, the background state is always up-to-date
+            - Auch wenn eine Force-Funktion aktiv ist, wird der Hintergrundstatus immer aktuell gehalten
 
-            - When the force function is disabled, the cover knows exactly where to return
+            - Wenn die Force-Funktion deaktiviert wird, weiß die Abdeckung genau wohin sie zurückkehren soll
 
 
             **Perfect for:**
@@ -2162,7 +2149,7 @@ blueprint:
 
             - 🔥 Emergency Scenarios (temporary manual control, then auto-recovery)
 
-            - 🏠 Cleaning/Maintenance (force-open, then auto-return when done)
+            - 🏠 Reinigung/Wartung (Force-Öffnen, dann automatisch zurück wenn fertig)
 
 
             </details>

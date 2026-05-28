@@ -1,13 +1,12 @@
 blueprint:
-  name: "Cover Control Automation (CCA)"
+  name: "Smart Cover Blueprint"
   description: |
-    # ⭐ Cover Control Automation (CCA) ⭐
-    Cover Control Automation is a comprehensive Home Assistant blueprint which automatically manages your window coverings (such as roller shutters and blinds) based on time, the position of the sun, and weather conditions. It adapts intelligently to your preferences, largely eliminating the need for manual adjustments.
+    # 🪟 Smart Cover Blueprint
+    A simplified Home Assistant blueprint for automatic roller shutter and blind control — based on time, sun position, brightness, and weather. Supports Rolladen, Jalousie, and Markise.
 
-    **Version**: 2026.05.27
+    **Version**: 2026.05.28
 
-    ### 🔗 Resources & Support
-    📢 **Latest Changes**: [Changelog](https://hvorragend.github.io/ha-blueprints/CHANGELOG) | ✨ **Highlights**: [Key Features](https://hvorragend.github.io/ha-blueprints/#-key-features)
+    **Based on**: [Cover Control Automation (CCA)](https://github.com/hvorragend/ha-blueprints) by hvorragend
     🚀 **Setup**: [Quick Start Guide](https://hvorragend.github.io/ha-blueprints/#-quick-start-5-steps) | [Prerequisites](https://hvorragend.github.io/ha-blueprints/#-essential-prerequisites)
     📚 **Docs**: ❓ [FAQ](https://hvorragend.github.io/ha-blueprints/FAQ) | ☀️ [Dynamic Sun Elevation](https://hvorragend.github.io/ha-blueprints/DYNAMIC_SUN_ELEVATION) | ⏰ [Time Control Visualization](https://hvorragend.github.io/ha-blueprints/TIME_CONTROL_VISUALIZATION)
     🔧 **Validator**: Validate YAML for errors, typos, and deprecated parameters with the [CCA Configuration Validator](https://hvorragend.github.io/ha-blueprints/validator/)
@@ -2558,7 +2557,7 @@ trigger_variables:
 ################################################################################
 
 variables:
-  version: "2026.05.27"
+  version: "2026.05.28"
 
   # Force pause
   is_paused: "{{ force_pause != [] and states(force_pause) in ['on', 'true'] }}"

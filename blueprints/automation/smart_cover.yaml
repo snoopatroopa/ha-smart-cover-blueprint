@@ -437,10 +437,6 @@ blueprint:
       name: "Cover Tilt Position Settings"
       icon: mdi:image-filter-tilt-shift
       collapsed: true
-      conditions:
-        - condition: blueprint_input
-          input_id: cover_type
-          value: "jalousie"
       input:
         cover_tilt_wait_mode:
           name: "🔄 Tilt Wait Mode"

@@ -310,7 +310,7 @@ blueprint:
 
         custom_position_sensor:
           name: "📍 Eigener Positionssensor"
-          description: "Select sensor that provides position (0-100%). Only used if 'Custom sensor' selected above"
+          description: "Sensor der die Position liefert (0-100%). Nur bei 'Eigener Positionssensor' aktiv"
           default: []
           selector:
             entity:
@@ -358,7 +358,7 @@ blueprint:
 
         open_position:
           name: "🔼 Öffnungsposition"
-          description: "What position should the cover be moved into when opening?"
+          description: "Auf welche Position soll die Abdeckung beim Öffnen fahren?"
           default: 100
           selector:
             number:
@@ -368,7 +368,7 @@ blueprint:
 
         close_position:
           name: "🔻 Schließposition"
-          description: "What position should the cover be moved into when closing?"
+          description: "Auf welche Position soll die Abdeckung beim Schließen fahren?"
           default: 0
           selector:
             number:
@@ -391,7 +391,7 @@ blueprint:
 
         shading_position:
           name: "🥵 Beschattungsposition"
-          description: "To which position should the cover be moved for shading?"
+          description: "Auf welche Position soll die Abdeckung bei Beschattung fahren?"
           default: 25
           selector:
             number:
@@ -525,7 +525,7 @@ blueprint:
 
         open_tilt_position:
           name: "🔼 Lamellen Öffnungsposition"
-          description: "To which tilt position should the cover be moved when opening?"
+          description: "Auf welche Lamellenposition beim Öffnen?"
           default: 50
           selector:
             number:
@@ -534,7 +534,7 @@ blueprint:
               unit_of_measurement: "%"
         close_tilt_position:
           name: "🔻 Lamellen Schließposition"
-          description: "To which tilt position should the cover be moved when closing?"
+          description: "Auf welche Lamellenposition beim Schließen?"
           default: 50
           selector:
             number:
@@ -543,7 +543,7 @@ blueprint:
               unit_of_measurement: "%"
         ventilate_tilt_position:
           name: "💨 Lamellen Lüftungsposition"
-          description: "To which tilt position should the cover be moved for ventilation?"
+          description: "Auf welche Lamellenposition beim Lüften?"
           default: 50
           selector:
             number:
@@ -561,7 +561,7 @@ blueprint:
               unit_of_measurement: "%"
         shading_tilt_position_1:
           name: "🥵 Lamellen Beschattungsposition 1"
-          description: "To which tilt position should the cover be moved for shading when the sun is above elevation 1?"
+          description: "Lamellenposition bei Beschattung wenn Sonnenhöhe über Elevation 1"
           default: 20
           selector:
             number:
@@ -570,7 +570,7 @@ blueprint:
               unit_of_measurement: "%"
         shading_tilt_elevation_1:
           name: "🥵 Lamellen Sonnenhöhe 1"
-          description: "Sun elevation for tilt position 1."
+          description: "Sonnenhöhe für Lamellenposition 1"
           default: 20
           selector:
             number:
@@ -581,7 +581,7 @@ blueprint:
               step: 1.0
         shading_tilt_position_2:
           name: "🥵 Lamellen Beschattungsposition 2"
-          description: "To which tilt position should the cover be moved for shading when the sun is above elevation 2?"
+          description: "Lamellenposition bei Beschattung wenn Sonnenhöhe über Elevation 2"
           default: 37
           selector:
             number:
@@ -590,7 +590,7 @@ blueprint:
               unit_of_measurement: "%"
         shading_tilt_elevation_2:
           name: "🥵 Lamellen Sonnenhöhe 2"
-          description: "Sun elevation for tilt position 2."
+          description: "Sonnenhöhe für Lamellenposition 2"
           default: 30
           selector:
             number:
@@ -601,7 +601,7 @@ blueprint:
               step: 1.0
         shading_tilt_position_3:
           name: "🥵 Lamellen Beschattungsposition 3"
-          description: "To which tilt position should the cover be moved for shading when the sun is above elevation 3?"
+          description: "Lamellenposition bei Beschattung wenn Sonnenhöhe über Elevation 3"
           default: 50
           selector:
             number:
@@ -610,7 +610,7 @@ blueprint:
               unit_of_measurement: "%"
         shading_tilt_elevation_3:
           name: "🥵 Lamellen Sonnenhöhe 3"
-          description: "Sun elevation for tilt position 3."
+          description: "Sonnenhöhe für Lamellenposition 3"
           default: 48
           selector:
             number:
@@ -737,7 +737,7 @@ blueprint:
       input:
         default_brightness_sensor:
           name: "🔅 Helligkeitssensor"
-          description: "This default brightness sensor can be defined here, which is used for daily up and down."
+          description: "Helligkeitssensor der für das tägliche Öffnen und Schließen verwendet wird."
           default: []
           selector:
             entity:
@@ -747,7 +747,7 @@ blueprint:
 
         brightness_time_duration:
           name: "🔅 Mindestdauer Helligkeitsschwelle"
-          description: "Defines the time to given brightness sensor must be stay above/below the thresholds."
+          description: "Wie lange muss der Helligkeitssensor den Schwellwert über-/unterschreiten bevor eine Aktion ausgelöst wird?"
           default: 30
           selector:
             number:
@@ -759,7 +759,7 @@ blueprint:
 
         brightness_up:
           name: "🔅 Helligkeit zum Öffnen"
-          description: "At what brightness value should the cover be opened?"
+          description: "Bei welchem Helligkeitswert (Lux) soll die Abdeckung geöffnet werden?"
           default: 0
           selector:
             number:
@@ -770,7 +770,7 @@ blueprint:
 
         brightness_down:
           name: "🔅 Helligkeit zum Schließen"
-          description: "At what brightness value should the cover be closed? Must be lower then the brightness up value."
+          description: "Bei welchem Helligkeitswert soll geschlossen werden? Muss kleiner als der Öffnungswert sein."
           default: 0
           selector:
             number:
@@ -830,7 +830,7 @@ blueprint:
 
         sun_time_duration:
           name: "☀️ Mindestdauer Sonnenschwelle"
-          description: "Defines the time to given sun sensor must be stay above/below the thresholds."
+          description: "Wie lange muss der Sonnensensor den Schwellwert über-/unterschreiten bevor eine Aktion ausgelöst wird?"
           default: 30
           selector:
             number:
@@ -937,7 +937,7 @@ blueprint:
         <center><p><small>
           Settings if the feature ‘💨 - Ventilation Mode — React to open/tilted windows, prevent lockout’ has been activated above.
           <br />
-          All these settings are optional.
+          Alle Einstellungen sind optional.
         </small></p></center>
       icon: mdi:door-closed-lock
       collapsed: true
@@ -1137,9 +1137,9 @@ blueprint:
       name: "Sonnenschutz / Beschattung"
       description: >-
         <center><p><small>
-          Settings if the feature '🥵 - Sun Protection / Shading — Partially close when sun shines on window' has been activated above.
+          Einstellungen für Sonnenschutz / Beschattung — Partially close when sun shines on window' has been activated above.
           <br />
-          All these settings are optional / The attributes of default sun sensor (configured above) is used.
+          Alle Einstellungen sind optional. Es wird der oben konfigurierte Sonnen-Sensor verwendet.
         </small></p></center>
 
         <details>
@@ -1425,7 +1425,7 @@ blueprint:
 
         shading_azimuth_start:
           name: "📐 Beschattung – Azimut Start"
-          description: "What is the minimum azimuth at which the sun hits the window? (Shading will start)"
+          description: "Minimaler Azimut ab dem die Sonne das Fenster trifft (Beschattung startet)"
           default: 95
           selector:
             number:
@@ -1435,7 +1435,7 @@ blueprint:
 
         shading_azimuth_end:
           name: "📐 Beschattung – Azimut Ende"
-          description: "What is the maximum azimuth at which the sun hits the window? (Shading will stop)"
+          description: "Maximaler Azimut bis zu dem die Sonne das Fenster trifft (Beschattung endet)"
           default: 265
           selector:
             number:
@@ -1469,7 +1469,7 @@ blueprint:
 
         shading_brightness_sensor:
           name: "🔆 Beschattung – Helligkeitssensor"
-          description: "This sensor is only used for shading."
+          description: "Dieser Sensor wird nur für die Beschattung verwendet."
           default: []
           selector:
             entity:
@@ -1479,7 +1479,7 @@ blueprint:
 
         shading_sun_brightness_start:
           name: "🔆 Beschattung – Helligkeit Startwert"
-          description: "The minimum brightness value from which shading should start. (Must be above the value of brightness end!)"
+          description: "Mindestwert ab dem die Beschattung startet. (Muss größer als der Endwert sein!)"
           default: 35000
           selector:
             number:
@@ -1490,7 +1490,7 @@ blueprint:
 
         shading_sun_brightness_end:
           name: "🔆 Beschattung – Helligkeit Endwert"
-          description: "The brightness value from which shading is no longer necessary. (Must be below the value of brightness start!)."
+          description: "Wert ab dem Beschattung nicht mehr nötig ist. (Muss kleiner als der Startwert sein!)"
           default: 25000
           selector:
             number:
@@ -1524,7 +1524,7 @@ blueprint:
 
         shading_min_temperatur1:
           name: "1️⃣ Beschattung – Temperatursensor 1 Mindestwert"
-          description: "Minimum temperature for sensor 1 above which shading should occur."
+          description: "Mindesttemperatur Sensor 1 ab der Beschattung aktiv wird."
           default: 18
           selector:
             number:
@@ -1563,7 +1563,7 @@ blueprint:
 
         shading_min_temperatur2:
           name: "2️⃣ Beschattung – Temperatursensor 2 Mindestwert"
-          description: "Minimum temperature for sensor 2 above which shading should occur."
+          description: "Mindesttemperatur Sensor 2 ab der Beschattung aktiv wird."
           default: 18
           selector:
             number:
@@ -1887,14 +1887,14 @@ blueprint:
           <br />
           (4) In addition, the usual automatic opening of the cover is prevented as long as the sensor is set to ‘on/true’ or the resident.
           <br /><br />
-          All these settings are optional.
+          Alle Einstellungen sind optional.
         </small></p></center>
       icon: mdi:human-male-female
       collapsed: true
       input:
         resident_sensor:
           name: "🛌 Anwesenheitssensor"
-          description: "You can use this to define a resident for the room"
+          description: "Anwesenheitssensor für diesen Raum/diese Zone"
           default: []
           selector:
             entity:
@@ -2003,14 +2003,14 @@ blueprint:
 
         reset_override_time:
           name: "🗑️ Uhrzeit für Override-Reset"
-          description: "At what time do you want the manual detection to be reset?"
+          description: "Zu welcher Uhrzeit soll die manuelle Übersteuerung zurückgesetzt werden?"
           default: "00:01:00"
           selector:
             time: {}
 
         reset_override_timeout:
           name: "🗑️ Minuten bis Override-Reset"
-          description: "After how many minutes should it be reset?"
+          description: "Nach wie vielen Minuten soll zurückgesetzt werden?"
           default: 5
           selector:
             number:
@@ -2021,9 +2021,9 @@ blueprint:
     delay_section:
       description: >-
         <center><p><small>
-          Take into account that, for example, waiting times are added when brightness changes or shading is started.
+          Beachte: Wartezeiten bei Helligkeit oder Beschattung werden zusätzlich addiert.
           <br />
-          It is therefore better to use smaller values here. It is only a matter of separating the different covers in terms of time.
+          Kleinere Werte sind daher besser. Es geht nur darum, verschiedene Abdeckungen zeitlich zu staffeln.
         </small></p></center>
       name: "Verzögerungseinstellungen"
       icon: mdi:timer-outline
@@ -2061,7 +2061,7 @@ blueprint:
       name: "Zusätzliche Bedingungen"
       description: >-
         <center><p><small>
-          All these settings are optional
+          Alle Einstellungen sind optional
         </small></p></center>
       icon: mdi:help-rhombus-outline
       collapsed: true
@@ -2106,35 +2106,35 @@ blueprint:
 
         auto_ventilate_condition:
           name: "💨 Zusatzbedingung Lüftung"
-          description: "Optional: dynamically control ventilation start/end."
+          description: "Optional: Lüftungsstart dynamisch steuern."
           default: []
           selector:
             condition: {}
 
         auto_ventilate_end_condition:
           name: "💨 Zusatzbedingung Lüftung beenden"
-          description: "Optional: dynamically control when ventilation ends."
+          description: "Optional: Lüftungsende dynamisch steuern."
           default: []
           selector:
             condition: {}
 
         auto_shading_start_condition:
           name: "🥵 Zusatzbedingung Beschattung starten"
-          description: "Optional: dynamically control shading activation."
+          description: "Optional: Beschattungsstart dynamisch steuern."
           default: []
           selector:
             condition: {}
 
         auto_shading_tilt_condition:
           name: "🥵 Zusatzbedingung Lamellenbeschattung"
-          description: "Optional: dynamically control shading tilt."
+          description: "Optional: Lamellenbeschattung dynamisch steuern."
           default: []
           selector:
             condition: {}
 
         auto_shading_end_condition:
           name: "🥵 Zusatzbedingung Beschattung beenden"
-          description: "Optional: dynamically control shading deactivation."
+          description: "Optional: Beschattungsende dynamisch steuern."
           default: []
           selector:
             condition: {}
@@ -2160,7 +2160,7 @@ blueprint:
         auto_recover_after_force:
           name: "🔙 Automatisch in Zielposition zurück nach Force-Ende"
           description: >-
-            Seamless control with automatic recovery: When enabled, the cover automatically returns to its intended position when a force function is disabled.
+            Nahtlose Steuerung mit automatischer Rückkehr: Wenn aktiviert, fährt die Abdeckung nach Deaktivierung der Force-Funktion automatisch in die Zielposition zurück.
 
             <details>
             <summary><code><strong>HOW IT WORKS:</strong> Smart Background Tracking</code></summary>
@@ -2293,84 +2293,84 @@ blueprint:
       input:
         auto_up_action_before:
           name: "🔼 Zusatzaktion vor dem Öffnen"
-          description: "Additional actions to run <ins>before</ins> opening the cover"
+          description: "Zusatzaktionen <ins>vor</ins> dem Öffnen"
           default: []
           selector:
             action: {}
 
         auto_up_action:
           name: "🔼 Zusatzaktion nach dem Öffnen"
-          description: "Additional actions to run <ins>after</ins> opening the cover"
+          description: "Zusatzaktionen <ins>nach</ins> dem Öffnen"
           default: []
           selector:
             action: {}
 
         auto_down_action_before:
           name: "🔻 Zusatzaktion vor dem Schließen"
-          description: "Additional actions to run <ins>before</ins> closing the cover"
+          description: "Zusatzaktionen <ins>vor</ins> dem Schließen"
           default: []
           selector:
             action: {}
 
         auto_down_action:
           name: "🔻 Zusatzaktion nach dem Schließen"
-          description: "Additional actions to run <ins>after</ins> closing the cover"
+          description: "Zusatzaktionen <ins>nach</ins> dem Schließen"
           default: []
           selector:
             action: {}
 
         auto_ventilate_action_before:
           name: "💨 Zusatzaktion vor der Lüftung"
-          description: "Additional actions to run <ins>before</ins> ventilating the cover"
+          description: "Zusatzaktionen <ins>vor</ins> der Lüftung"
           default: []
           selector:
             action: {}
 
         auto_ventilate_action:
           name: "💨 Zusatzaktion nach der Lüftung"
-          description: "Additional actions to run <ins>after</ins> ventilating the cover"
+          description: "Zusatzaktionen <ins>nach</ins> der Lüftung"
           default: []
           selector:
             action: {}
 
         auto_shading_start_action_before:
           name: "🥵 Zusatzaktion vor Beschattungsstart"
-          description: "Additional actions to run <ins>before</ins> activating sun shading"
+          description: "Zusatzaktionen <ins>vor</ins> dem Beschattungsstart"
           default: []
           selector:
             action: {}
 
         auto_shading_start_action:
           name: "🥵 Zusatzaktion nach Beschattungsstart"
-          description: "Additional actions to run <ins>after</ins> activating sun shading"
+          description: "Zusatzaktionen <ins>nach</ins> dem Beschattungsstart"
           default: []
           selector:
             action: {}
 
         auto_shading_end_action_before:
           name: "🥵 Zusatzaktion vor Beschattungsende"
-          description: "Additional actions to run <ins>before</ins> disabling sun shading"
+          description: "Zusatzaktionen <ins>vor</ins> dem Beschattungsende"
           default: []
           selector:
             action: {}
 
         auto_shading_end_action:
           name: "🥵 Zusatzaktion nach Beschattungsende"
-          description: "Additional actions to run <ins>after</ins> disabling sun shading"
+          description: "Zusatzaktionen <ins>nach</ins> dem Beschattungsende"
           default: []
           selector:
             action: {}
 
         auto_manual_action:
           name: "🖐️ Zusatzaktion nach manuellem Eingriff"
-          description: "Additional actions after a manual change to the covers"
+          description: "Zusatzaktionen nach einem manuellen Eingriff"
           default: []
           selector:
             action: {}
 
         auto_override_reset_action:
           name: "🗑️ Zusatzaktion nach Override-Reset"
-          description: "Additional actions to be taken after resetting the manual override"
+          description: "Zusatzaktionen nach dem Override-Reset"
           default: []
           selector:
             action: {}

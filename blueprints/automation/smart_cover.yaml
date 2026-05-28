@@ -17,9 +17,7 @@ blueprint:
     blind:
       name: "🪟 Cover"
       description: >-
-        Which blind or roller shutter should be automated?
-
-        Using a cover group? See [FAQ: Can I use a cover group?](https://hvorragend.github.io/ha-blueprints/FAQ#q-can-i-use-a-cover-group)
+        Welcher Rolladen, welche Jalousie oder Markise soll gesteuert werden?
 
       selector:
         entity:
@@ -30,8 +28,8 @@ blueprint:
     cover_status_helper:
       name: "🔤 Cover Status Helper"
       description: >-
-        Helper used to store the last cover event data (in JSON format). A separate helper must be created for each CCA automation.
-        *Attention:* You will need to manually create an [input_text](https://my.home-assistant.io/redirect/helpers/) entity with a <ins>length of 254 chars</ins> for this.
+        Hilfsobjekt zum Speichern des letzten Status (JSON). Pro Automation wird ein eigener Helper benötigt.
+        *Hinweis:* Manuell einen [input_text](https://my.home-assistant.io/redirect/helpers/) Helper mit einer <ins>Länge von 254 Zeichen</ins> anlegen.
       default: []
       selector:
         entity:
@@ -43,15 +41,15 @@ blueprint:
       collapsed: true
       description: >-
         <center><p><small>
-          Configure what CCA controls and how it behaves. Most settings use safe defaults. Expand the descriptions below only if you need details.
+          Legt fest was das Blueprint steuert und wie es sich verhält. Die meisten Einstellungen haben sichere Standardwerte.
         </small></p></center>
       input:
         auto_options:
           name: "👉 Was soll gesteuert werden?"
           description: >-
-            Select which opening, closing, and special behaviors CCA should manage.
+            Wähle welche Aktionen das Blueprint steuern soll.
 
-            *Not sure? The defaults (Morning Opening, Evening Closing, Time Control) work for most setups.*
+            *Nicht sicher? Die Standardauswahl (Morgenöffnung, Abendschließen, Zeitsteuerung) passt für die meisten Setups.*
 
 
             <details>
@@ -134,7 +132,7 @@ blueprint:
         time_control:
           name: "⏲️ Art der Zeitsteuerung"
           description: >-
-            Select how time-based opening and closing is scheduled. *(Only relevant when **Time Control** is enabled above.)*
+            Legt fest wie zeitbasiertes Öffnen und Schließen geplant wird. *(Nur relevant wenn **Zeitsteuerung** oben aktiviert ist.)*
 
             <details>
             <summary><code><strong>📖 HIER KLICKEN:</strong> Weitere Erklärungen</code></summary>
@@ -164,7 +162,7 @@ blueprint:
         brightness_sun_operator:
           name: "🔀 Verknüpfung: Helligkeit & Sonnenhöhe"
           description: >-
-            How should Brightness and Sun Elevation conditions be combined when **both** are active?
+            Wie sollen Helligkeit und Sonnenhöhe verknüpft werden wenn **beide** aktiv sind?
 
 
             <details>

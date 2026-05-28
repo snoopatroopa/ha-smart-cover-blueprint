@@ -2111,6 +2111,41 @@ blueprint:
           selector:
             condition: {}
 
+        auto_ventilate_condition:
+          name: "💨 Additional Condition For Ventilation"
+          description: "Optional: dynamically control ventilation start/end."
+          default: []
+          selector:
+            condition: {}
+
+        auto_ventilate_end_condition:
+          name: "💨 Additional Condition For Disabling Ventilation"
+          description: "Optional: dynamically control when ventilation ends."
+          default: []
+          selector:
+            condition: {}
+
+        auto_shading_start_condition:
+          name: "🥵 Additional Condition When Activating Sun Shading"
+          description: "Optional: dynamically control shading activation."
+          default: []
+          selector:
+            condition: {}
+
+        auto_shading_tilt_condition:
+          name: "🥵 Additional Condition For Sun Shading Tilt"
+          description: "Optional: dynamically control shading tilt."
+          default: []
+          selector:
+            condition: {}
+
+        auto_shading_end_condition:
+          name: "🥵 Additional Condition When Deactivating Sun Shading"
+          description: "Optional: dynamically control shading deactivation."
+          default: []
+          selector:
+            condition: {}
+
     force_section:
       name: "Force Features"
       description: >-

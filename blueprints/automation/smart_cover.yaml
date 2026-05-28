@@ -2,14 +2,14 @@ blueprint:
   name: "Smart Cover Blueprint"
   description: |
     # 🪟 Smart Cover Blueprint
-    A simplified Home Assistant blueprint for automatic roller shutter and blind control — based on time, sun position, brightness, and weather. Supports Rolladen, Jalousie, and Markise.
+    Ein vereinfachtes Home Assistant Blueprint zur automatischen Rolladen-, Jalousie- und Markisensteuerung — basierend auf Uhrzeit, Sonnenstand, Helligkeit und Wetter.
 
     **Version**: 2026.05.28
 
-    **Based on**: [Cover Control Automation (CCA)](https://github.com/hvorragend/ha-blueprints) by hvorragend
-    <sub>License: Open-source. Based on CCA by hvorragend.</sub>
+    **Basierend auf**: [Cover Control Automation (CCA)](https://github.com/hvorragend/ha-blueprints) von hvorragend
+    <sub>Lizenz: Open-Source. Basierend auf CCA von hvorragend.</sub>
 
-  source_url: https://github.com/hvorragend/ha-blueprints/blob/main/blueprints/automation/cover_control_automation.yaml
+  source_url: https://github.com/snoopatroopa/ha-smart-cover-blueprint/blob/main/blueprints/automation/smart_cover.yaml
   domain: automation
   homeassistant:
     min_version: "2024.10.0"

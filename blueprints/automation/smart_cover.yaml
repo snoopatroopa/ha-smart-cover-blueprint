@@ -325,13 +325,13 @@ blueprint:
             <details>
             <summary><code><strong>HIER KLICKEN:</strong> Positionswerte – Beispiele</code></summary>
 
-            <strong>For Blinds/Shutters:</strong><br />
+            <strong>Für Rolladen/Jalousie:</strong><br />
             - Öffnungsposition: 100% (vollständig oben)<br />
             - Beschattungsposition: 25% (teilweise unten für Sonnenschutz)<br />
             - Lüftungsposition: 30% (leicht unten für Luftzufuhr)<br />
             - Schließposition: 0% (vollständig unten)<br />
             <br />
-            <strong>For Awnings:</strong><br />
+            <strong>Für Markisen:</strong><br />
             - Öffnungsposition: 0% (eingefahren/geschlossen)<br />
             - Beschattungsposition: 75% (ausgefahren für Sonnenschutz)<br />
             - Schließposition: 100% (vollständig ausgefahren)<br />
@@ -468,7 +468,7 @@ blueprint:
             Verzögerung zwischen <em>set_cover_position</em> und <em>set_cover_tilt_position</em>.
             Nur bei Lamellensteuerung notwendig.
             Trennt die beiden Befehle zeitlich.
-            <br /><br /><strong style="color:#e74c3c;">Optional</strong>
+            <br /><br />**Optional**
           default: 0
           selector:
             number:
@@ -706,7 +706,7 @@ blueprint:
             Empfehlung: [Workday Integration](https://www.home-assistant.io/integrations/workday/) verwenden.
             <br /><br />
             Beispiel: `binary_sensor.workday_today`
-            <br /><br /><strong style="color:#e74c3c;">Optional</strong>
+            <br /><br />**Optional**
           default: []
           selector:
             entity:
@@ -810,7 +810,7 @@ blueprint:
             <li>-12° Nautische Morgendämmerung</li>
             <li>-18° Astronomische Morgendämmerung/Nacht</li>
             </ul>
-            <br /><strong style="color:#e74c3c;">Optional</strong> / `Shading`
+            <br />**Optional** / `Shading`
           default: "sun.sun"
           selector:
             entity:
@@ -851,7 +851,7 @@ blueprint:
             Beispiel: Sensor=2,0° + Fest=1,5° = Schwellwert 3,5°.
             Ermöglicht saisonale Anpassung mit manuellem Feintuning.
             <br /><br />
-            <strong style="color:#e74c3c;">Optional</strong> / `Default: Fixed`
+            **Optional** / `Default: Fixed`
           default: "fixed"
           selector:
             select:
@@ -1997,7 +1997,7 @@ blueprint:
           name: "🕛 Fixer Fahrverzögerung"
           description: >-
             Feste Verzögerung vor jeder Fahrt zur Vermeidung von Funk-Interferenzen.
-            <br /><br /><strong style="color:#e74c3c;">Optional</strong>
+            <br /><br />**Optional**
           default: 0
           selector:
             number:
@@ -2011,7 +2011,7 @@ blueprint:
           name: "🕛 Zufällige Fahrverzögerung"
           description: >-
             Zufällige Zusatzverzögerung zur zeitlichen Staffelung mehrerer Abdeckungen.
-            <br /><br /><strong style="color:#e74c3c;">Optional</strong>
+            <br /><br />**Optional**
           default: 5
           selector:
             number:

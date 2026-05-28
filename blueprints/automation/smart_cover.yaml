@@ -284,7 +284,7 @@ blueprint:
         position_source:
           name: "📍 Positionsquelle"
           description: >-
-            How does your cover provide position information?
+            Wie liefert die Abdeckung ihre Positionsinformation?
             <details>
             <summary><code><strong>HIER KLICKEN: Wann welche Option?</strong></code></summary>
 
@@ -325,7 +325,7 @@ blueprint:
             ⚠️ <strong>Note:</strong> Ventilation and tilt features are not available for awnings.
             <br /><br />
             <details>
-            <summary><code><strong>CLICK HERE:</strong> Position value examples</code></summary>
+            <summary><code><strong>HIER KLICKEN:</strong> Position value examples</code></summary>
 
             <strong>For Blinds/Shutters:</strong><br />
             - Open Position: 100% (fully up)<br />
@@ -431,16 +431,15 @@ blueprint:
         cover_tilt_wait_mode:
           name: "🔄 Lamellen-Wartemodus"
           description: >-
-            Choose how CCA waits before sending tilt commands:
+            Wähle aus wie gewartet werden soll bis die Lamellenbefehle gesendet werden:
 
-            **Fixed Delay (Standard)**: Uses the configured tilt delay value.
-            Works well for most devices.
+            **Feste Verzögerung (Standard)**: Nutzt den konfigurierten Verzögerungswert. Funktioniert für die meisten Geräte.
 
-            **Wait Until Idle (Z-Wave)**: Waits until cover reports 'open' or 'closed'
-            state before sending tilt. Prevents tilt commands from being ignored on
-            devices that block tilt during motor movement (e.g., Shelly Qubino Wave Shutter).
+            **Warten bis idle (Z-Wave)**: Wartet bis die Abdeckung 'offen' oder 'geschlossen'
+            meldet bevor der Lamellenbefehl gesendet wird. Verhindert ignorierte Befehle auf
+            Geräten die während der Fahrt keine Lamellenbefehle akzeptieren (z.B. Shelly Qubino Wave Shutter).
 
-            If your tilt positions are unreliable, try switching to 'Wait Until Idle' mode.
+            Bei unzuverlässigen Lamellenpositionen: Modus auf 'Warten bis idle' wechseln.
           default: "fixed_delay"
           selector:
             select:
@@ -548,7 +547,7 @@ blueprint:
               unit_of_measurement: "%"
         shading_tilt_position_0:
           name: "🥵 Lamellen Beschattungsposition"
-          description: "Minimum tilt position for shading. The cover will be tilted to this position if the sun elevation is below the value of elevation 1."
+          description: "Minimale Lamellenposition für die Beschattung. Die Lamellen fahren auf diese Position wenn die Sonnenhöhe unter Elevation 1 liegt."
           default: 0
           selector:
             number:
@@ -630,8 +629,8 @@ blueprint:
         time_up_early:
           name: "🔼 Früheste Öffnungszeit – Werktage"
           description: >-
-            The earliest time at which the cover may be opened. The cover will be opened if <ins>AFTER</ins> this time the defined brightness
-            or sun-elevation value is high enough. (**NOTE**: A resident must also be awake if one is defined).
+            Früheste Öffnungszeit. Die Abdeckung öffnet wenn <ins>NACH</ins> dieser Zeit der Helligkeits- oder Sonnenhöhenwert hoch genug ist.
+            (**Hinweis**: Wenn ein Bewohner definiert ist, muss dieser auch wach sein.)
           default: "06:00:00"
           selector:
             time: {}
@@ -798,20 +797,20 @@ blueprint:
         default_sun_sensor:
           name: "☀️ Sonnen-Sensor"
           description: >-
-            Which sensors provides attributes with current azimuth and elevation of sun.
-            I strongly suggest to use sun.sun ([Sun integration](https://www.home-assistant.io/integrations/sun/)).
-            Please make sure that the integration is activated and provides the attributes.
-            This sensor is also used for sun protection / sunshade control.
+            Welcher Sensor liefert Azimut und Höhe der Sonne.
+            Empfehlung: sun.sun ([Sun-Integration](https://www.home-assistant.io/integrations/sun/)) verwenden.
+            Sicherstellen dass die Integration aktiv ist und die Attribute liefert.
+            Dieser Sensor wird auch für den Sonnenschutz verwendet.
             <br /><br />
-            <ins>A few examples of threshold values:</ins>
+            <ins>Einige Beispiele für Schwellwerte:</ins>
             <ul>
-            <li>+18° Astronomical Dusk</li>
-            <li>+12° Nautical Dusk</li>
-            <li>+6° Dusk</li>
-            <li>0° Sunrise/Sunset (Default)</li>
-            <li>-6° Civil Dawn</li>
-            <li>-12° Nautical Dawn</li>
-            <li>-18° Astronomical Dawn/Night</li>
+            <li>+18° Astronomische Dämmerung</li>
+            <li>+12° Nautische Dämmerung</li>
+            <li>+6° Dämmerung</li>
+            <li>0° Sonnenaufgang/Untergang (Standard)</li>
+            <li>-6° Bürgerliche Morgendämmerung</li>
+            <li>-12° Nautische Morgendämmerung</li>
+            <li>-18° Astronomische Morgendämmerung/Nacht</li>
             </ul>
             <br />`Optional` / `Shading`
           default: "sun.sun"
@@ -848,11 +847,11 @@ blueprint:
             Nutzt nur Sehe sensor values (Sun Elevation Up/Down Sensor).
             Fixed values are ignored. Sensors must be configured and provide valid numeric values.
             <br /><br />
-            **🔄 Hybrid Mode**
+            **🔄 Hybrid-Modus**
             <br />
-            Combines both: Sensor value + Fixed value as offset.
-            Beispiel: Sensor=2.0° + Fixed=1.5° = Threshold of 3.5°.
-            Allows seasonal adaptation with manual fine-tuning offset.
+            Kombiniert beides: Sensorwert + fester Wert als Offset.
+            Beispiel: Sensor=2,0° + Fest=1,5° = Schwellwert 3,5°.
+            Ermöglicht saisonale Anpassung mit manuellem Feintuning.
             <br /><br />
             `Optional` / `Default: Fixed`
           default: "fixed"
@@ -938,13 +937,13 @@ blueprint:
         contact_window_opened:
           name: "🚪 Kontaktsensor für geöffnetes Fenster"
           description: >-
-            Contact sensor of a door or window handle for detecting <ins>total opening</ins>.
-            If this sensor switches to on/true, the cover is <ins>fully opened</ins>.
-            At the same time, a lockout protection is <ins>always</ins> activated.
-            The cover is not closed and the sun shading is not activated when the contact is open.
+            Kontaktsensor eines Fensters oder einer Tür zur Erkennung von <ins>vollständiger Öffnung</ins>.
+            Bei on/wahr wird die Abdeckung <ins>vollständig geöffnet</ins>.
+            Gleichzeitig ist der Aussperrschutz <ins>immer</ins> aktiv.
+            Die Abdeckung wird nicht geschlossen und Beschattung nicht aktiviert solange der Kontakt offen ist.
 
             <details>
-            <summary><code><strong>CLICK HERE:</strong> Further descriptions</code></summary>
+            <summary><code><strong>HIER KLICKEN:</strong> Weitere Beschreibungen</code></summary>
 
 
             It must be a binary two-way contact sensor.
@@ -973,7 +972,7 @@ blueprint:
             Gleiches gilt beim Beschattungsende — situation.
 
             <details>
-            <summary><code><strong>CLICK HERE:</strong> Further descriptions</code></summary>
+            <summary><code><strong>HIER KLICKEN:</strong> Weitere Beschreibungen</code></summary>
 
 
             It must be a binary two-way contact sensor.
@@ -995,7 +994,7 @@ blueprint:
         lockout_tilted_options:
           name: "💨 Aussperrschutz bei gekipptem Fenster"
           description: >-
-            For the tilted window (or door, of course), you can individually specify where a lockout protection should be used.
+            Für das gekippte Fenster (oder die Tür) kann individuell angegeben werden wo Aussperrschutz verwendet werden soll.
           default: []
           selector:
             select:
@@ -1013,10 +1012,10 @@ blueprint:
         auto_ventilate_options:
           name: "💨 Lüftungsoptionen"
           description: >-
-            Various different ventilation options.
+            Verschiedene Optionen für den Lüftungsmodus.
 
             <details>
-            <summary><code><strong>CLICK HERE:</strong> Further descriptions</code></summary>
+            <summary><code><strong>HIER KLICKEN:</strong> Weitere Beschreibungen</code></summary>
 
 
               - <ins>Disables the drive delay when ventilation starts (window opens/tilts):</ins>
@@ -1072,14 +1071,13 @@ blueprint:
           description: >-
             Wie viele Sekunden muss der Kontaktsensorstatus stabil sein bevor die Automation auslöst?
 
-            ⚠️ **Race Condition Protection:**
-            If you have multiple contact sensors (e.g., window sensor + lock sensor) that can change
-            simultaneously, increase this value to prevent race conditions.
+            ⚠️ **Race-Condition-Schutz:**
+            Bei mehreren gleichzeitig schaltenden Kontaktsensoren (z.B. Fenster + Schloss) diesen Wert erhöhen.
 
-            **Symptoms of race conditions:**
-            - Cover closes despite lockout sensor being active
-            - Check Home Assistant logs for "max_exceeded: warning" messages
-            - If you see these warnings frequently, increase this delay
+            **Symptome von Race Conditions:**
+            - Abdeckung schließt trotz aktivem Aussperrschutz
+            - In HA-Logs nach "max_exceeded: warning" suchen
+            - Bei häufigen Warnungen diesen Wert erhöhen
           default: 2
           selector:
             number:
@@ -1094,25 +1092,19 @@ blueprint:
           description: >-
             Wie lange soll die Automation nach einem Kontaktsensor-Trigger warten bevor alle Sensorstatus neu ausgewertet werden?
 
-            This delay is applied inside the contact sensor handling. After the
-            delay, CCA reads the **live state** of all contact sensors — so the final
-            decision (return to open / close / shading) reflects the actual situation
-            at that moment, not the state at trigger time.
+            Nach der Verzögerung wird der **aktuelle Zustand** aller Kontaktsensoren neu gelesen — die Entscheidung spiegelt die Situation zum Auswertungszeitpunkt wider, nicht den Zustand zum Triggerzeitpunkt.
 
 
-            **When to increase this value:**
+            **Wann diesen Wert erhöhen:**
 
-            - Your window/door sensor briefly shows an intermediate state when changing
+            - Der Fenster-/Türsensor zeigt kurz einen Zwischenzustand beim Wechseln
 
-            - You switch the window contact and the resident sensor off in quick
-              succession — with a delay of 0.5–1 s, CCA will see the resident as
-              already gone and return to open instead of close
+            - Du schaltest Fensterkontakt und Bewohnersensor kurz nacheinander aus — mit 0,5–1 s Verzögerung erkennt die Automation den Bewohner als bereits weg
 
 
-            **⚠️ Race Condition: Window closed + Resident off in quick succession:**
+            **⚠️ Race Condition: Fenster geschlossen + Bewohner ausgeschaltet kurz nacheinander:**
 
-            If `contact_window_opened` and the resident sensor are turned off within
-            milliseconds of each other, CCA may still see the resident as present
+            Wenn beide Sensoren innerhalb von Millisekunden schalten, kann die Automation den Bewohner noch als anwesend sehen
             at trigger time and incorrectly close the cover.
             Setting this delay to **0.5–1 second** gives the resident sensor enough
             time to settle before CCA makes its routing decision.
@@ -1135,7 +1127,7 @@ blueprint:
         </small></p></center>
 
         <details>
-        <summary><code><strong>CLICK HERE:</strong> How the shading process works (two phases)</code></summary>
+        <summary><code><strong>HIER KLICKEN:</strong> How the shading process works (two phases)</code></summary>
 
 
         **Phase 1 — Pending (trigger):**
@@ -1174,7 +1166,7 @@ blueprint:
             **Bedingungen die ALLE erfüllt sein müssen damit Beschattung STARTET**
 
             <details>
-            <summary><code><strong>CLICK HERE:</strong> How START conditions work</code></summary>
+            <summary><code><strong>HIER KLICKEN:</strong> Wie START-Bedingungen funktionieren</code></summary>
 
 
             **Required (AND) conditions for START:**
@@ -1239,7 +1231,7 @@ blueprint:
             **Bedingungen bei denen MINDESTENS EINE erfüllt sein muss damit Beschattung STARTET**
 
             <details>
-            <summary><code><strong>CLICK HERE:</strong> When to use OR conditions</code></summary>
+            <summary><code><strong>HIER KLICKEN:</strong> Wann ODER-Bedingungen verwenden</code></summary>
 
 
             **Optional (OR) conditions for START:**
@@ -1294,7 +1286,7 @@ blueprint:
             **Bedingungen die ALLE ungültig werden müssen damit Beschattung ENDET**
 
             <details>
-            <summary><code><strong>CLICK HERE:</strong> How END conditions work</code></summary>
+            <summary><code><strong>HIER KLICKEN:</strong> Wie ENDE-Bedingungen funktionieren</code></summary>
 
 
             **Required (AND) conditions for END:**
@@ -1354,7 +1346,7 @@ blueprint:
             **Bedingungen bei denen MINDESTENS EINE ungültig werden muss damit Beschattung ENDET**
 
             <details>
-            <summary><code><strong>CLICK HERE:</strong> Typical END configurations</code></summary>
+            <summary><code><strong>HIER KLICKEN:</strong> Typische ENDE-Konfigurationen</code></summary>
 
 
             **Optional (OR) conditions for END:**
@@ -1437,7 +1429,7 @@ blueprint:
 
         shading_elevation_min:
           name: "📈 Beschattung – Sonnenhöhe Minimum"
-          description: "Starting from which elevation of the sun should the window be shaded? (Here it makes sense to consider surrounding buildings, trees, etc.)."
+          description: "Ab welcher Sonnenhöhe soll das Fenster beschattet werden? (Umliegende Gebäude, Bäume etc. berücksichtigen.)"
           default: 25
           selector:
             number:
@@ -1449,7 +1441,7 @@ blueprint:
 
         shading_elevation_max:
           name: "📈 Beschattung – Sonnenhöhe Maximum"
-          description: "What is the maximal elevation for elevation? (In most cases, 90 degrees is probably the most reasonable value. However, this can also be different due to surrounding buildings, etc.)."
+          description: "Maximale Sonnenhöhe für die Beschattung. (In den meisten Fällen sind 90° der sinnvollste Wert, kann aber durch umliegende Gebäude abweichen.)"
           default: 90
           selector:
             number:
@@ -1493,7 +1485,7 @@ blueprint:
 
         shading_sun_brightness_hysteresis:
           name: "🔆 Beschattung – Helligkeits-Hysterese"
-          description: "Hysteresis value to prevent flickering. The brightness must exceed (start + hysteresis) to activate shading and fall below (end - hysteresis) to deactivate it. See: [FAQ: How does hysteresis work?](https://hvorragend.github.io/ha-blueprints/FAQ#q-how-does-hysteresis-work)"
+          description: "Hysteresewert zur Vermeidung von Flackern. Helligkeit muss (Start + Hysterese) überschreiten um Beschattung zu aktivieren und unter (Ende - Hysterese) fallen um sie zu deaktivieren."
           default: 0
           selector:
             number:
@@ -1528,7 +1520,7 @@ blueprint:
 
         shading_temperature_hysteresis1:
           name: "1️⃣ Beschattung – Temperatursensor 1 Hysterese"
-          description: "Shading will end only when temperature drops below (minimum - hysteresis value) to prevent frequent open/close cycles. See: [FAQ: How does hysteresis work?](https://hvorragend.github.io/ha-blueprints/FAQ#q-how-does-hysteresis-work)"
+          description: "Beschattung endet erst wenn die Temperatur unter (Minimum - Hysterese) fällt. Verhindert häufige Zyklen."
           default: 0.2
           selector:
             number:
@@ -1567,7 +1559,7 @@ blueprint:
 
         shading_temperature_hysteresis2:
           name: "2️⃣ Beschattung – Temperatursensor 2 Hysterese"
-          description: "Shading will end only when temperature drops below (minimum - hysteresis value) to prevent frequent open/close cycles. See: [FAQ: How does hysteresis work?](https://hvorragend.github.io/ha-blueprints/FAQ#q-how-does-hysteresis-work)"
+          description: "Beschattung endet erst wenn die Temperatur unter (Minimum - Hysterese) fällt. Verhindert häufige Zyklen."
           default: 0.2
           selector:
             number:
@@ -1584,7 +1576,7 @@ blueprint:
             Dies ist die empfohlene Methode für vorhersagebasierte Beschattung.
 
             <details>
-              <summary><code><strong>CLICK HERE:</strong> How to configure</code></summary>
+              <summary><code><strong>HIER KLICKEN:</strong> How to configure</code></summary>
 
               Select a weather entity (e.g., weather.home, weather.openweathermap).
 
@@ -1645,7 +1637,7 @@ blueprint:
             **Alternative Methode:** Sensor verwenden der die vorhergesagte Maximaltemperatur direkt liefert.
 
             <details>
-              <summary><code><strong>CLICK HERE:</strong> When to use this</code></summary>
+              <summary><code><strong>HIER KLICKEN:</strong> When to use this</code></summary>
 
               Use this if:
 
@@ -1688,7 +1680,7 @@ blueprint:
               - Leave empty to disable temperature-based forecast shading.
 
               <details>
-                <summary><code><strong>CLICK HERE:</strong> Further description</code></summary>
+                <summary><code><strong>HIER KLICKEN:</strong> Further description</code></summary>
 
                 To enhance reliability, the system can compare this threshold against two sources:
 
@@ -1712,11 +1704,11 @@ blueprint:
         shading_forecast_temp_hysteresis:
           name: "📊 Beschattung – Vorhersage Temperatur-Hysterese"
           description: >-
-              Prevents frequent on/off cycles near threshold.
+              Verhindert häufige Ein-/Ausschaltzyklen nahe am Schwellwert.
 
-              - Shading starts: forecast > (threshold + hysteresis)
+              - Beschattung startet: Vorhersage > (Schwellwert + Hysterese)
 
-              - Shading ends: forecast < (threshold - hysteresis)
+              - Beschattung endet: Vorhersage < (Schwellwert - Hysterese)
 
 
               See: [FAQ: How does hysteresis work?](https://hvorragend.github.io/ha-blueprints/FAQ#q-how-does-hysteresis-work)
@@ -1804,16 +1796,14 @@ blueprint:
         shading_start_max_duration:
           name: "🥵 Beschattung – Max. Wiederholungsdauer Start"
           description: |
-            Maximum time to keep retrying shading start conditions after initial trigger.
-            The Start Waiting Time is used for the periodic condition checks during this retry loop.
-            If conditions remain unstable for longer than this timeout, the retry loop is stopped.
-            Shading will not start and waits for a new shading start trigger.
+            Maximale Zeit für Wiederholungsversuche der Startbedingungen nach dem ersten Trigger.
+            Die Wartezeit wird für periodische Bedingungsprüfungen verwendet.
+            Bei länger anhaltender Instabilität wird die Schleife gestoppt.
 
-            **Use case:** Prevents automation from being stuck in "waiting for stable conditions"
-            when weather is highly unstable (rapidly changing clouds).
+            **Anwendungsfall:** Verhindert Hängen bei stark wechselhaftem Wetter.
 
-            **0 = disabled** (no periodic retry, stops immediately - old "trigger_reset" behavior)
-            **Recommended: 3600-7200 seconds (1-2 hours)**
+            **0 = deaktiviert** (kein periodischer Retry)
+            **Empfehlung: 3600-7200 Sekunden (1-2 Stunden)**
           default: 7200
           selector:
             number:
@@ -1838,16 +1828,13 @@ blueprint:
         shading_end_max_duration:
           name: "🥵 Beschattung – Max. Wiederholungsdauer Ende"
           description: |
-            Maximum time to keep retrying shading end conditions after initial trigger.
-            The End Waiting Time is used for the periodic condition checks during this retry loop.
-            If conditions remain unstable for longer than this timeout, the retry loop is stopped.
-            Shading remains active and waits for a new shading end trigger.
+            Maximale Zeit für Wiederholungsversuche der Endbedingungen nach dem ersten Trigger.
+            Bei längerer Instabilität wird die Schleife gestoppt, Beschattung bleibt aktiv.
 
-            **Use case:** Prevents automation from being stuck in "waiting for stable conditions"
-            when weather is highly unstable (rapidly changing clouds).
+            **Anwendungsfall:** Verhindert Hängen bei stark wechselhaftem Wetter.
 
-            **0 = disabled** (no periodic retry, behaves like old version)
-            **Recommended: 3600-7200 seconds (1-2 hours)**
+            **0 = deaktiviert**
+            **Empfehlung: 3600-7200 Sekunden (1-2 Stunden)**
           default: 7200
           selector:
             number:
@@ -1897,10 +1884,10 @@ blueprint:
         resident_config:
           name: "🛌 Anwesenheitsoptionen"
           description: |
-            Configure how the automation responds to resident sensor changes.
+            Legt fest wie auf Bewohnersensor-Änderungen reagiert wird.
 
-            - **Opening enabled**: Cover opens when resident wakes up, but only if time, brightness, and sun elevation conditions are met
-            - **Closing enabled**: Cover closes when resident goes to sleep (immediate, ignores other conditions)
+            - **Öffnen aktiviert**: Abdeckung öffnet wenn Bewohner aufwacht — aber nur wenn Zeit, Helligkeit und Sonnenhöhe passen
+            - **Schließen aktiviert**: Abdeckung schließt wenn Bewohner schläft (sofort, ohne weitere Bedingungen)
           default: []
           selector:
             select:
@@ -1933,7 +1920,7 @@ blueprint:
             Folgende Aktionen nach manuellen Positionsänderungen ignorieren.
 
             <details>
-            <summary><code><strong>CLICK HERE:</strong> Further description</code></summary>
+            <summary><code><strong>HIER KLICKEN:</strong> Further description</code></summary>
 
 
             Ultimately, this means that the cover will not be opened, closed, etc.
@@ -2022,7 +2009,7 @@ blueprint:
         drive_delay_fix:
           name: "🕛 Fixer Fahrverzögerung"
           description: >-
-            Fixed drive delay to avoid radio interferences.
+            Feste Verzögerung vor jeder Fahrt zur Vermeidung von Funk-Interferenzen.
             <br /><br />`Optional`
           default: 0
           selector:
@@ -2036,7 +2023,7 @@ blueprint:
         drive_delay_random:
           name: "🕛 Zufällige Fahrverzögerung"
           description: >-
-            Additional random delay.
+            Zufällige Zusatzverzögerung zur zeitlichen Staffelung mehrerer Abdeckungen.
             <br /><br />`Optional`
           default: 5
           selector:

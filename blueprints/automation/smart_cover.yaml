@@ -2482,7 +2482,7 @@ blueprint:
 trigger_variables:
   blind: !input blind
   cover_type: !input cover_type
-  is_awning: "{{ cover_type == 'awning' }}"
+  is_awning: "{{ cover_type == 'markise' }}"
   resident_sensor: !input resident_sensor
 
   # Position source configuration
@@ -2512,7 +2512,7 @@ trigger_variables:
   auto_options: !input auto_options
   cover_tilt_config: !input cover_tilt_config
   cover_tilt_reposition_config: !input cover_tilt_reposition_config
-  is_cover_tilt_enabled: "{{ not is_awning and 'cover_tilt_enabled' in cover_tilt_config }}"
+  is_cover_tilt_enabled: "{{ cover_type == 'jalousie' and 'cover_tilt_enabled' in cover_tilt_config }}"
 
   # Tilt wait mode configuration
   tilt_wait_mode: !input cover_tilt_wait_mode
@@ -2529,13 +2529,13 @@ trigger_variables:
   time_down_late: !input time_down_late
   time_down_late_non_workday: !input time_down_late_non_workday
   workday_sensor_today: !input workday_sensor
-  workday_sensor_tomorrow: !input workday_sensor_tomorrow
+  workday_sensor_tomorrow: []
   time_control: !input time_control
 
   # Calendar configuration
-  calendar_entity: !input calendar_entity
-  calendar_open_title: !input calendar_open_title
-  calendar_close_title: !input calendar_close_title
+  calendar_entity: []
+  calendar_open_title: "Open Cover"
+  calendar_close_title: "Close Cover"
   calendar_open_title_lc: "{{ (calendar_open_title | default('')) | lower | trim }}"
   calendar_close_title_lc: "{{ (calendar_close_title | default('')) | lower | trim }}"
   is_calendar_enabled: "{{ 'time_control_calendar' in time_control and calendar_entity != [] }}"
@@ -3212,12 +3212,12 @@ variables:
   is_force_recovery_enabled: "{{ 'auto_recover_enabled' in auto_recover_after_force }}"
 
   # Configuration check
-  check_config: !input check_config
-  check_config_debuglevel: !input check_config_debuglevel
+  check_config: false
+  check_config_debuglevel: "info"
   check_status_helper_length: "{{ state_attr(cover_status_helper, 'max') if cover_status_helper != [] else None }}"
 
   # Logbook
-  enable_logbook: !input enable_logbook
+  enable_logbook: false
 
 # CCA uses 'queued' mode to prevent race conditions when multiple sensors
 # change state simultaneously (e.g., window sensor + lock sensor).
@@ -3398,14 +3398,14 @@ triggers:
 
 # Calendar event starts (state becomes "on")
   - trigger: state
-    entity_id: !input calendar_entity
+    entity_id: "{{ calendar_entity }}"
     to: "on"
     enabled: "{{ is_calendar_enabled }}"
     id: "t_calendar_event_start"
 
   # Calendar event ends (state becomes "off")
   - trigger: state
-    entity_id: !input calendar_entity
+    entity_id: "{{ calendar_entity }}"
     to: "off"
     enabled: "{{ is_calendar_enabled }}"
     id: "t_calendar_event_end"
@@ -4008,7 +4008,7 @@ actions:
     then:
       - action: calendar.get_events
         target:
-          entity_id: !input calendar_entity
+          entity_id: "{{ calendar_entity }}"
         data:
           # Get all events for today (00:00:00 to 23:59:59)
           start_date_time: "{{ today_at('00:00:00').isoformat() }}"

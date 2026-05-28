@@ -319,6 +319,10 @@ blueprint:
           name: "📍 Custom Position Sensor"
           description: "Select sensor that provides position (0-100%). Only used if 'Custom sensor' selected above"
           default: []
+          conditions:
+            - condition: blueprint_input
+              input_id: position_source
+              value: "custom_sensor"
           selector:
             entity:
               domain: sensor
@@ -437,6 +441,10 @@ blueprint:
       name: "Cover Tilt Position Settings"
       icon: mdi:image-filter-tilt-shift
       collapsed: true
+      conditions:
+        - condition: blueprint_input
+          input_id: cover_type
+          value: "jalousie"
       input:
         cover_tilt_wait_mode:
           name: "🔄 Tilt Wait Mode"
@@ -888,12 +896,19 @@ blueprint:
           description: >-
             **Fixed Mode**: Direct threshold value for opening.
             <br />
-            **Dynamic Mode**: Ignored (sensor value is used).
-            <br />
             **Hybrid Mode**: Added as offset to sensor value.
             <br /><br />
             The cover will be <ins>opened</ins> if the sun elevation is over the calculated threshold.
           default: 0
+          conditions:
+            - condition: or
+              conditions:
+                - condition: blueprint_input
+                  input_id: sun_elevation_mode
+                  value: "fixed"
+                - condition: blueprint_input
+                  input_id: sun_elevation_mode
+                  value: "hybrid"
           selector:
             number:
               min: -90.0
@@ -907,12 +922,19 @@ blueprint:
           description: >-
             **Fixed Mode**: Direct threshold value for closing.
             <br />
-            **Dynamic Mode**: Ignored (sensor value is used).
-            <br />
             **Hybrid Mode**: Added as offset to sensor value.
             <br /><br />
             The cover will be <ins>closed</ins> if the sun elevation is under the calculated threshold.
           default: 0
+          conditions:
+            - condition: or
+              conditions:
+                - condition: blueprint_input
+                  input_id: sun_elevation_mode
+                  value: "fixed"
+                - condition: blueprint_input
+                  input_id: sun_elevation_mode
+                  value: "hybrid"
           selector:
             number:
               min: -90.0
@@ -922,35 +944,19 @@ blueprint:
               mode: slider
 
         sun_elevation_up_sensor:
-          name: "☀️ Sun Elevation Up Sensor (Dynamic/Hybrid - Optional)"
+          name: "☀️ Sun Elevation Up Sensor (Dynamic/Hybrid)"
           description: >-
             Optional sensor that provides a **dynamic elevation threshold** for opening based on season.
             This sensor value is compared with the **sun elevation from the sun integration** (`sun.sun` attribute `elevation`).
-            <br /><br />
-            **Behavior depends on Sun Elevation Mode:**
-            <br />
-            • **Fixed Mode**: Sensor is ignored even if configured
-            <br />
-            • **Dynamic Mode**: Sensor value is used directly as threshold (required)
-            <br />
-            • **Hybrid Mode**: Sensor value + Fixed value as combined threshold
-            <br /><br />
-            **How it works**: The cover opens when the **current sun elevation is higher** than the calculated threshold.
-            The sensor provides the threshold (in degrees) — dynamic instead of fixed in the blueprint.
-            <br /><br />
-            **Example (Dynamic Mode)**: Sensor value = 2.5° → Cover opens when `sun.sun` elevation rises above 2.5°.
-            In summer (sensor = 5.0°) the cover opens later than in winter (sensor = -2.0°), matching seasonal sunrise times.
-            <br /><br />
-            **Example (Hybrid Mode)**: Sensor value = 2.0°, Fixed value = 1.5° → Threshold = 3.5°.
-            Allows seasonal adaptation with manual fine-tuning.
-            <br /><br />
-            **Multiple covers**: For different behavior per cover (e.g., east vs. west facing), create multiple template sensors with different thresholds.
-            <br /><br />
-            **Recommended options**:<br />
-            • **Template sensor** with seasonal interpolation for automatic year-round adaptation ([Guide](https://hvorragend.github.io/ha-blueprints/DYNAMIC_SUN_ELEVATION))<br />
-            • **Input Number helper** for manual GUI-based configuration via dashboard
-            <br /><br />
-            `Optional` / `Required for Dynamic Mode`
+          conditions:
+            - condition: or
+              conditions:
+                - condition: blueprint_input
+                  input_id: sun_elevation_mode
+                  value: "dynamic"
+                - condition: blueprint_input
+                  input_id: sun_elevation_mode
+                  value: "hybrid"
           default: []
           selector:
             entity:
@@ -958,35 +964,18 @@ blueprint:
                 - domain: [sensor, input_number]
 
         sun_elevation_down_sensor:
-          name: "☀️ Sun Elevation Down Sensor (Dynamic/Hybrid - Optional)"
+          name: "☀️ Sun Elevation Down Sensor (Dynamic/Hybrid)"
           description: >-
             Optional sensor that provides a **dynamic elevation threshold** for closing based on season.
-            This sensor value is compared with the **sun elevation from the sun integration** (`sun.sun` attribute `elevation`).
-            <br /><br />
-            **Behavior depends on Sun Elevation Mode:**
-            <br />
-            • **Fixed Mode**: Sensor is ignored even if configured
-            <br />
-            • **Dynamic Mode**: Sensor value is used directly as threshold (required)
-            <br />
-            • **Hybrid Mode**: Sensor value + Fixed value as combined threshold
-            <br /><br />
-            **How it works**: The cover closes when the **current sun elevation is lower** than the calculated threshold.
-            The sensor provides the threshold (in degrees) — dynamic instead of fixed in the blueprint.
-            <br /><br />
-            **Example (Dynamic Mode)**: Sensor value = 0.5° → Cover closes when `sun.sun` elevation sets below 0.5°.
-            In summer (sensor = 2.0°) the cover closes later than in winter (sensor = -4.0°), matching seasonal sunset times.
-            <br /><br />
-            **Example (Hybrid Mode)**: Sensor value = 0.0°, Fixed value = -1.0° → Threshold = -1.0°.
-            Allows seasonal adaptation with manual fine-tuning.
-            <br /><br />
-            **Multiple covers**: For different behavior per cover (e.g., east vs. west facing), create multiple template sensors with different thresholds.
-            <br /><br />
-            **Recommended options**:<br />
-            • **Template sensor** with seasonal interpolation for automatic year-round adaptation ([Guide](https://hvorragend.github.io/ha-blueprints/DYNAMIC_SUN_ELEVATION))<br />
-            • **Input Number helper** for manual GUI-based configuration via dashboard
-            <br /><br />
-            `Optional` / `Required for Dynamic Mode`
+          conditions:
+            - condition: or
+              conditions:
+                - condition: blueprint_input
+                  input_id: sun_elevation_mode
+                  value: "dynamic"
+                - condition: blueprint_input
+                  input_id: sun_elevation_mode
+                  value: "hybrid"
           default: []
           selector:
             entity:
@@ -1831,38 +1820,22 @@ blueprint:
                 - "windy-variant"
                 - "exceptional"
 
+        shading_advanced_enabled:
+          name: "⚙️ Erweiterte Beschattungs-Konfiguration aktivieren"
+          description: "Feintuning für temperaturbasiertes Beschatten — für Normalnutzer nicht nötig"
+          default: false
+          selector:
+            boolean: {}
+
         shading_config:
           name: "🥵 Sun Shading - Configuration"
           description: >-
             These options allow you to fine-tune how the system handles temperature-based shading.
             <p><em>Click on the titles to get further help.</em></p>
-            <details>
-            <summary><code><strong>Independent Shading via Temperature Comparison</strong></code></summary>
-
-              Enables shading based solely on temperature — <ins>independently of other conditions</ins> like brightness, sun position, or time.
-              - By default, only the external <em>forecasted temperature</em> is compared with the configured threshold in <em>"Forecast Temperature Value"</em>.
-              - You can also enable another comparison by selecting the other checkbox.
-
-              If any value exceeds the threshold, shading will be activated — even if all other shading conditions are false.
-
-              This is especially useful in the early morning: the system can already determine whether shading will be needed later in the day. Instead of fully opening the blinds, it can move them directly into the shading position.
-
-              Additionally, one hour before the earliest possible opening time, the system retrieves the latest weather forecast.
-
-              This allows it to compare the updated forecasted temperature with the configured threshold and make an early shading decision based on the most current data.
-
-            </details>
-            <br />
-            <details>
-            <summary><code><strong>Additionally compare forecast temperature with Sensor 2</strong></code></summary>
-
-              This activates an extended comparison, checking not only whether the external forecasted temperature is above the threshold configured in <em>"Forecast Temperature Value"</em>, but also whether the current reading from <em>"Temperature Sensor 2"</em> (e.g. outdoor) is above the threshold configured for it. The shading condition will be true if <em>one</em> of the following conditions is met:
-              - The external forecasted temperature exceeds the configured threshold in <em>"Forecast Temperature Value"</em>, or<br />
-              - the <em>"Temperature Sensor 2"</em> reports a higher temperature than in <em>"Forecast Temperature Value"</em>.
-
-              This mechanism improves the responsiveness and reliability of the shading system by using real-time sensor input as an optional condition, especially when forecast data is uncertain.
-              Note: This function has nothing to do with normal temperature comparison, but is used exclusively in the context of the forecast function.
-            </details>
+          conditions:
+            - condition: blueprint_input
+              input_id: shading_advanced_enabled
+              value: true
           default: []
           selector:
             select:
@@ -2087,6 +2060,10 @@ blueprint:
           name: "🗑️ Time to reset manual override"
           description: "At what time do you want the manual detection to be reset?"
           default: "00:01:00"
+          conditions:
+            - condition: blueprint_input
+              input_id: reset_override_config
+              value: "reset_fixed_time"
           selector:
             time: {}
 
@@ -2094,6 +2071,10 @@ blueprint:
           name: "🗑️ Number of minutes until reset manual override"
           description: "After how many minutes should it be reset?"
           default: 5
+          conditions:
+            - condition: blueprint_input
+              input_id: reset_override_config
+              value: "reset_timeout"
           selector:
             number:
               min: 0
@@ -2237,6 +2218,10 @@ blueprint:
 
             </details>
           default: auto_recover_disabled
+          conditions:
+            - condition: blueprint_input
+              input_id: force_features_enabled
+              value: true
           selector:
             select:
               options:
@@ -2264,6 +2249,10 @@ blueprint:
             too), this force pause only blocks cover movement. The helper always
             reflects the correct background state, so resuming is instant and reliable.
           default: []
+          conditions:
+            - condition: blueprint_input
+              input_id: force_features_enabled
+              value: true
           selector:
             entity:
               domain:
@@ -2275,6 +2264,10 @@ blueprint:
           description: >-
             If the status of this entity changes to on or true, the cover is opened immediately and without further checking.
           default: []
+          conditions:
+            - condition: blueprint_input
+              input_id: force_features_enabled
+              value: true
           selector:
             entity:
               domain:
@@ -2287,6 +2280,10 @@ blueprint:
           description: >-
             If the status of this entity changes to on or true, the cover is closed immediately and without further checking.
           default: []
+          conditions:
+            - condition: blueprint_input
+              input_id: force_features_enabled
+              value: true
           selector:
             entity:
               domain:
@@ -2299,6 +2296,10 @@ blueprint:
           description: >-
             If the status of this entity changes to on or true, the cover is immediately set to ventilation mode and without further checking.
           default: []
+          conditions:
+            - condition: blueprint_input
+              input_id: force_features_enabled
+              value: true
           selector:
             entity:
               domain:
@@ -2311,6 +2312,10 @@ blueprint:
           description: >-
             If the status of this entity changes to on or true, the shading is immediately activated and without further checking.
           default: []
+          conditions:
+            - condition: blueprint_input
+              input_id: force_features_enabled
+              value: true
           selector:
             entity:
               domain:
@@ -2342,6 +2347,10 @@ blueprint:
           name: "🔼 Additional Actions Before Opening The Cover"
           description: "Additional actions to run <ins>before</ins> opening the cover"
           default: []
+          conditions:
+            - condition: blueprint_input
+              input_id: additional_actions_enabled
+              value: true
           selector:
             action: {}
 
@@ -2349,6 +2358,10 @@ blueprint:
           name: "🔼 Additional Actions After Opening The Cover"
           description: "Additional actions to run <ins>after</ins> opening the cover"
           default: []
+          conditions:
+            - condition: blueprint_input
+              input_id: additional_actions_enabled
+              value: true
           selector:
             action: {}
 
@@ -2356,6 +2369,10 @@ blueprint:
           name: "🔻 Additional Actions Before Closing The Cover"
           description: "Additional actions to run <ins>before</ins> closing the cover"
           default: []
+          conditions:
+            - condition: blueprint_input
+              input_id: additional_actions_enabled
+              value: true
           selector:
             action: {}
 
@@ -2363,6 +2380,10 @@ blueprint:
           name: "🔻 Additional Actions After Closing The Cover"
           description: "Additional actions to run <ins>after</ins> closing the cover"
           default: []
+          conditions:
+            - condition: blueprint_input
+              input_id: additional_actions_enabled
+              value: true
           selector:
             action: {}
 
@@ -2370,6 +2391,10 @@ blueprint:
           name: "💨 Additional Actions Before Ventilating The Cover"
           description: "Additional actions to run <ins>before</ins> ventilating the cover"
           default: []
+          conditions:
+            - condition: blueprint_input
+              input_id: additional_actions_enabled
+              value: true
           selector:
             action: {}
 
@@ -2377,6 +2402,10 @@ blueprint:
           name: "💨 Additional Actions After Ventilating The Cover"
           description: "Additional actions to run <ins>after</ins> ventilating the cover"
           default: []
+          conditions:
+            - condition: blueprint_input
+              input_id: additional_actions_enabled
+              value: true
           selector:
             action: {}
 
@@ -2384,6 +2413,10 @@ blueprint:
           name: "🥵 Additional Actions Before Activating Sun Shading"
           description: "Additional actions to run <ins>before</ins> activating sun shading"
           default: []
+          conditions:
+            - condition: blueprint_input
+              input_id: additional_actions_enabled
+              value: true
           selector:
             action: {}
 
@@ -2391,6 +2424,10 @@ blueprint:
           name: "🥵 Additional Actions After Activating Sun Shading"
           description: "Additional actions to run <ins>after</ins> activating sun shading"
           default: []
+          conditions:
+            - condition: blueprint_input
+              input_id: additional_actions_enabled
+              value: true
           selector:
             action: {}
 
@@ -2398,6 +2435,10 @@ blueprint:
           name: "🥵 Additional Actions Before Disabling Sun Shading"
           description: "Additional actions to run <ins>before</ins> disabling sun shading"
           default: []
+          conditions:
+            - condition: blueprint_input
+              input_id: additional_actions_enabled
+              value: true
           selector:
             action: {}
 
@@ -2405,6 +2446,10 @@ blueprint:
           name: "🥵 Additional Actions After Disabling Sun Shading"
           description: "Additional actions to run <ins>after</ins> disabling sun shading"
           default: []
+          conditions:
+            - condition: blueprint_input
+              input_id: additional_actions_enabled
+              value: true
           selector:
             action: {}
 
@@ -2412,6 +2457,10 @@ blueprint:
           name: "🖐️ Additional Actions After Manual Change"
           description: "Additional actions after a manual change to the covers"
           default: []
+          conditions:
+            - condition: blueprint_input
+              input_id: additional_actions_enabled
+              value: true
           selector:
             action: {}
 
@@ -2419,6 +2468,10 @@ blueprint:
           name: "🗑️ Additional Actions After Override Reset"
           description: "Additional actions to be taken after resetting the manual override"
           default: []
+          conditions:
+            - condition: blueprint_input
+              input_id: additional_actions_enabled
+              value: true
           selector:
             action: {}
 

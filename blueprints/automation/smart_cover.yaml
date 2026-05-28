@@ -55,50 +55,50 @@ blueprint:
 
 
             <details>
-            <summary><code><strong>📖 CLICK HERE:</strong> How these options work together</code></summary>
+            <summary><code><strong>📖 HIER KLICKEN:</strong> Wie diese Optionen zusammenwirken</code></summary>
 
 
-            **Basic Controls (When to move):**
+            **Grundsteuerung (Wann fahren):**
 
-            Enable morning opening and/or evening closing.
-
-
-            **Fine-Tuning (When to trigger):**
-
-            Control whether time, brightness, and sun elevation influence opening and closing.
-            Set the condition logic (AND/OR) when both brightness and sun elevation are active.
-            Configure thresholds and sensors in the dedicated sections below.
+            Morgenöffnung und/oder Abendschließen aktivieren.
 
 
-            **Advanced Features (How to react):**
+            **Feintuning (Wann auslösen):**
 
-            Add ventilation mode and/or sun protection for situational behavior.
-
-
-            **Sun Elevation vs. Sun Protection are two different things!**
-
-            - **Sun Elevation** (☀️) = Opens/closes based on sunrise/sunset — configure thresholds in *Sun Elevation Settings* below
-
-            - **Sun Protection** (🥵) = Partially closes the cover during midday when the sun shines directly on the window
+            Steuere ob Zeit, Helligkeit und Sonnenhöhe das Öffnen/Schließen beeinflussen.
+            Lege die Bedingungslogik (UND/ODER) fest wenn beide aktiv sind.
+            Schwellwerte und Sensoren in den jeweiligen Abschnitten unten konfigurieren.
 
 
-            **Example of a summer day**
+            **Erweiterte Funktionen (Wie reagieren):**
 
-            - **6:00** — Sun Elevation triggers opening (sun rose above your threshold)
-
-            - **7:00** — Time-based opening would have happened (but cover is already open)
-
-            - **12:00** — Sun Protection activates (sun now shines directly on window → partial close)
-
-            - **18:00** — Sun Protection deactivates (sun moved away → cover opens again)
-
-            - **21:00** — Sun Elevation triggers closing (sun dropped below your threshold)
+            Lüftungsmodus und/oder Sonnenschutz für situatives Verhalten hinzufügen.
 
 
-            **Notes on multiple triggering**
+            **Sonnenhöhe vs. Sonnenschutz sind zwei verschiedene Dinge!**
 
-            Even if multiple opening, closing, shading, etc. is activated, this only works if a trigger is available.
-            However, the numeric state triggers only trigger under certain circumstances. See: [FAQ: Why are my numeric triggers not firing?](https://hvorragend.github.io/ha-blueprints/FAQ#q-why-are-my-numeric-triggers-not-firing)
+            - **Sonnenhöhe** (☀️) = Öffnet/schließt basierend auf Sonnenaufgang/-untergang — Schwellwerte in *Sonnenhöhensteuerung* konfigurieren
+
+            - **Sonnenschutz** (🥵) = Schließt die Abdeckung tagsüber teilweise wenn die Sonne direkt aufs Fenster scheint
+
+
+            **Beispiel: Sommertag**
+
+            - **6:00** — Sonnenhöhe löst Öffnung aus (Sonne über deinem Schwellwert)
+
+            - **7:00** — Zeitbasiertes Öffnen wäre ausgelöst worden (Abdeckung ist bereits offen)
+
+            - **12:00** — Sonnenschutz aktiviert (Sonne scheint direkt aufs Fenster → Teilschließen)
+
+            - **18:00** — Sonnenschutz deaktiviert (Sonne weg → Abdeckung öffnet wieder)
+
+            - **21:00** — Sonnenhöhe löst Schließen aus (Sonne unter deinem Schwellwert)
+
+
+            **Hinweis zu Mehrfachauslösern**
+
+            Mehrfaches Öffnen, Schließen, Beschatten etc. funktioniert nur wenn ein Trigger verfügbar ist.
+            Numerische State-Trigger lösen nur unter bestimmten Umständen aus.
 
 
             </details>
@@ -137,12 +137,11 @@ blueprint:
             Select how time-based opening and closing is scheduled. *(Only relevant when **Time Control** is enabled above.)*
 
             <details>
-            <summary><code><strong>📖 CLICK HERE:</strong> Further descriptions</code></summary>
+            <summary><code><strong>📖 HIER KLICKEN:</strong> Weitere Erklärungen</code></summary>
             <br />
-            <ins>Input fields for time control</ins><br /><br />
-            The times for opening and closing the cover are configured in the Time Control section below.
-            Even if you only want to control the covers using brightness values or the sun elevation,
-            it is important to specify times — they are used to define the "morning" (up) and "evening" (down) windows.
+            <ins>Zeitfelder für die Zeitsteuerung</ins><br /><br />
+            Öffnungs- und Schließzeiten werden im Abschnitt Zeitsteuerung konfiguriert.
+            Auch wenn du nur Helligkeit oder Sonnenhöhe nutzen möchtest, müssen Zeiten angegeben werden — sie definieren das Morgen- (hoch) und Abendfenster (runter).
             <br /><br />
             <ins>Calendar Control</ins><br />
             You can use a Home Assistant calendar to define when covers should be open or closed.
@@ -169,28 +168,28 @@ blueprint:
 
 
             <details>
-            <summary><code><strong>📖 CLICK HERE:</strong> OR vs. AND - Which to choose?</code></summary>
+            <summary><code><strong>📖 HIER KLICKEN:</strong> ODER vs. UND – Was wählen?</code></summary>
 
 
-            **⚡ OR** *(Default — recommended for most users)*
+            **⚡ ODER** *(Standard — für die meisten Nutzer empfohlen)*
 
-            The cover opens/closes as soon as **either** condition is met.
+            Die Abdeckung öffnet/schließt sobald **eine** der Bedingungen erfüllt ist.
 
-            Example: Opens when it gets bright enough *or* the sun rises above the threshold.
+            Beispiel: Öffnet wenn es hell genug *oder* die Sonne über dem Schwellwert ist.
 
-            More responsive — reacts earlier on clear mornings.
-
-
-            **🔒 AND**
-
-            The cover opens/closes only when **both** conditions are met simultaneously.
-
-            Example: Opens only when it's bright enough *and* the sun is above the threshold.
-
-            More conservative — reduces false triggers on overcast mornings.
+            Reaktionsschneller — reagiert früher an klaren Morgen.
 
 
-            *Has no effect when only one of the two conditions is enabled.*
+            **🔒 UND**
+
+            Die Abdeckung öffnet/schließt nur wenn **beide** Bedingungen gleichzeitig erfüllt sind.
+
+            Beispiel: Öffnet nur wenn es hell genug *und* die Sonne über dem Schwellwert ist.
+
+            Konservativer — weniger Fehlauslösungen an bewölkten Morgen.
+
+
+            *Hat keine Auswirkung wenn nur eine der beiden Bedingungen aktiviert ist.*
 
             </details>
           default: "or"
@@ -208,22 +207,22 @@ blueprint:
         individual_config:
           name: "⚙️ Verhaltensoptionen"
           description: >-
-            **Fine-tune automation behavior for your specific hardware and preferences.**
+            **Automatisierungsverhalten für deine Hardware und Präferenzen feinabstimmen.**
 
 
             <details>
-            <summary><code><strong>📖 CLICK HERE:</strong> What each category controls</code></summary>
+            <summary><code><strong>📖 HIER KLICKEN:</strong> Was jede Kategorie steuert</code></summary>
 
 
-            This section lets you customize how CCA behaves in different scenarios:
+            Passe das Verhalten der Automation an:
 
-            - **Position Management**: Control cover movements between states (e.g., avoid raising when closing for the evening)
+            - **Positionsverwaltung**: Steuere Bewegungen zwischen Zuständen (z.B. abends nicht hochfahren)
 
-            - **Feature Control**: Disable automatic transitions (e.g., stay shaded after sun disappears, don't open after ventilation ends)
+            - **Funktionssteuerung**: Automatische Übergänge deaktivieren (z.B. nach Beschattungsende beschattet bleiben)
 
-            - **Daily Frequency Limits**: Prevent repeated actions (e.g., open only once per day)
+            - **Tagesfrequenz**: Wiederholte Aktionen verhindern (z.B. nur einmal täglich öffnen)
 
-            - **Hardware Compatibility**: Work around device-specific quirks with position/tilt commands
+            - **Hardware-Kompatibilität**: Gerätespezifische Eigenheiten umgehen
 
 
 
@@ -274,13 +273,13 @@ blueprint:
       icon: mdi:window-shutter-settings
       description: >-
         <center><p><small>
-          <strong>Important notes on configuring the position values</strong>
+          <strong>Wichtige Hinweise zu den Positionswerten</strong>
           <br />
-          Please ensure that all position values are unique and do not conflict with each other.
+          Bitte sicherstellen dass alle Positionswerte eindeutig sind und sich nicht überschneiden.
           <br />
-          <strong>Position Logic:</strong><br />
-          - For Blinds/Shutters: open_position (100%) > shading_position (25%) > close_position (0%)<br />
-          - For Awnings: open_position (0%) < shading_position (75%) < close_position (100%)<br />
+          <strong>Positionslogik:</strong><br />
+          - Rolladen/Jalousie: Öffnen (100%) > Beschattung (25%) > Schließen (0%)<br />
+          - Markise: Öffnen (0%) < Beschattung (75%) < Schließen (100%)<br />
         </small></p></center>
       collapsed: true
       input:
@@ -289,11 +288,11 @@ blueprint:
           description: >-
             How does your cover provide position information?
             <details>
-            <summary><code><strong>CLICK HERE: When to use each option</strong></code></summary>
+            <summary><code><strong>HIER KLICKEN: Wann welche Option?</strong></code></summary>
 
-              - **current_position attribute** (Standard): Most covers use this. If CCA detects positions correctly, keep this setting.
-              - **position attribute**: Select this if your cover entity has a 'position' attribute but no 'current_position' attribute. Check in Developer Tools → States if unsure.
-              - **Custom sensor**:   Use this if: Your cover doesn't report positions at all / You have an external sensor tracking the cover position / Manual position changes aren't detected with the other options
+              - **Attribut current_position** (Standard): Die meisten Abdeckungen nutzen dies.
+              - **Attribut position**: Wenn die Entity ein 'position'-Attribut hat aber kein 'current_position'. Im Entwickler-Tool → Zustände prüfen.
+              - **Eigener Sensor**: Wenn die Abdeckung keine Position meldet / ein externer Sensor die Position verfolgt / manuelle Änderungen nicht erkannt werden
 
             </details>
           default: "current_position_attr"
@@ -319,7 +318,7 @@ blueprint:
         cover_type:
           name: "🎯 Abdeckungstyp"
           description: >-
-            Select the type of cover you want to control.
+            Wähle den Typ der Abdeckung die gesteuert werden soll.
             <br /><br />
             <strong>Blind/Roller Shutter:</strong> Position 0% = closed (down), 100% = open (up). Shading uses lower positions.
             <br /><br />
@@ -714,7 +713,7 @@ blueprint:
             <br /><br />
             I recommend using the [Workday integration](https://www.home-assistant.io/integrations/workday/).
             <br /><br />
-            Example: `binary_sensor.workday_today`
+            Beispiel: `binary_sensor.workday_today`
             <br /><br />`Optional`
           default: []
           selector:
@@ -858,7 +857,7 @@ blueprint:
             **🔄 Hybrid Mode**
             <br />
             Combines both: Sensor value + Fixed value as offset.
-            Example: Sensor=2.0° + Fixed=1.5° = Threshold of 3.5°.
+            Beispiel: Sensor=2.0° + Fixed=1.5° = Threshold of 3.5°.
             Allows seasonal adaptation with manual fine-tuning offset.
             <br /><br />
             `Optional` / `Default: Fixed`
@@ -879,11 +878,11 @@ blueprint:
         sun_elevation_up:
           name: "☀️ Sonnenhöhe zum Öffnen"
           description: >-
-            **Fixed Mode**: Direct threshold value for opening.
+            **Fest-Modus**: Direkter Schwellwert für das Öffnen.
             <br />
-            **Hybrid Mode**: Added as offset to sensor value.
+            **Hybrid-Modus**: Wird als Offset zum Sensorwert addiert.
             <br /><br />
-            The cover will be <ins>opened</ins> if the sun elevation is over the calculated threshold.
+            Die Abdeckung wird <ins>geöffnet</ins> wenn die Sonnenhöhe über dem berechneten Schwellwert liegt.
           default: 0
           selector:
             number:
@@ -896,11 +895,11 @@ blueprint:
         sun_elevation_down:
           name: "☀️ Sonnenhöhe zum Schließen"
           description: >-
-            **Fixed Mode**: Direct threshold value for closing.
+            **Fest-Modus**: Direkter Schwellwert für das Schließen.
             <br />
-            **Hybrid Mode**: Added as offset to sensor value.
+            **Hybrid-Modus**: Wird als Offset zum Sensorwert addiert.
             <br /><br />
-            The cover will be <ins>closed</ins> if the sun elevation is under the calculated threshold.
+            Die Abdeckung wird <ins>geschlossen</ins> wenn die Sonnenhöhe unter dem berechneten Schwellwert liegt.
           default: 0
           selector:
             number:
@@ -913,8 +912,8 @@ blueprint:
         sun_elevation_up_sensor:
           name: "☀️ Sonnenhöhe Sensor Öffnen (Dynamisch/Hybrid)"
           description: >-
-            Optional sensor that provides a **dynamic elevation threshold** for opening based on season.
-            This sensor value is compared with the **sun elevation from the sun integration** (`sun.sun` attribute `elevation`).
+            Optionaler Sensor der einen **dynamischen Sonnenhöhen-Schwellwert** fürs Öffnen je nach Jahreszeit liefert.
+            Dieser Sensorwert wird mit der **Sonnenhöhe aus der sun-Integration** (`sun.sun` Attribut `elevation`) verglichen.
           default: []
           selector:
             entity:
@@ -924,7 +923,7 @@ blueprint:
         sun_elevation_down_sensor:
           name: "☀️ Sonnenhöhe Sensor Schließen (Dynamisch/Hybrid)"
           description: >-
-            Optional sensor that provides a **dynamic elevation threshold** for closing based on season.
+            Optionaler Sensor der einen **dynamischen Sonnenhöhen-Schwellwert** fürs Schließen je nach Jahreszeit liefert.
           default: []
           selector:
             entity:
@@ -2072,8 +2071,8 @@ blueprint:
             This condition allows you to control the execution of the <ins>entire</ins> automation dynamically and outside of the blueprint configuration.
             With this option you could enable a party mode.
             <br /><br />
-            If the result of this condition is <ins>true</ins>, the automation will continue.<br />
-            The result of the conditions must be <ins>false</ins>, for the automation to stop in this sequence.
+            Wenn das Ergebnis <ins>wahr</ins> ist, läuft die Automation weiter.<br />
+            Ist es <ins>falsch</ins>, stoppt die Automation an dieser Stelle.
             <br /><br />
             Forcing Open/Close/Shading/Ventilation is therefore only possible if this condition remains empty or becomes valid.
           default: []
@@ -2083,11 +2082,11 @@ blueprint:
         auto_up_condition:
           name: "🔼 Zusatzbedingung Öffnen"
           description: >-
-            This condition can be used to dynamically control the <ins>opening</ins> of the cover.
+            Diese Bedingung steuert dynamisch das <ins>Öffnen</ins> der Abdeckung.
             You can use this, for example, if the covers normally don't open, but you really want to do it on vacation.
             <br /><br />
-            If the result of this condition is <ins>true</ins>, the automation will continue.<br />
-            The result of the conditions must be <ins>false</ins>, for the automation to stop in this sequence.
+            Wenn das Ergebnis <ins>wahr</ins> ist, läuft die Automation weiter.<br />
+            Ist es <ins>falsch</ins>, stoppt die Automation an dieser Stelle.
           default: []
           selector:
             condition: {}
@@ -2095,11 +2094,11 @@ blueprint:
         auto_down_condition:
           name: "🔻 Zusatzbedingung Schließen"
           description: >-
-            This condition can be used to dynamically control the <ins>closing</ins> of the cover.
+            Diese Bedingung steuert dynamisch das <ins>Schließen</ins> der Abdeckung.
             You can use this, for example, at Christmas time or if you want the covers to behave differently while on vacation.
             <br /><br />
-            If the result of this condition is <ins>true</ins>, the automation will continue.<br />
-            The result of the conditions must be <ins>false</ins>, for the automation to stop in this sequence.
+            Wenn das Ergebnis <ins>wahr</ins> ist, läuft die Automation weiter.<br />
+            Ist es <ins>falsch</ins>, stoppt die Automation an dieser Stelle.
           default: []
           selector:
             condition: {}
@@ -2205,14 +2204,12 @@ blueprint:
         force_pause:
           name: "⏸️ Pause (Automatik aussetzen)"
           description: >-
-            If the status of this entity changes to on or true, all automatic cover
-            movements are suspended immediately. The background state (target positions)
+            Wenn diese Entity auf ein oder wahr wechselt, werden alle automatischen Fahrten sofort pausiert. The background state (target positions)
             is still tracked continuously in the helper — even while paused.
 
-            When this entity turns off again, the cover **immediately returns** to its
-            correct target position — no waiting for the next scheduled trigger.
+            Wenn die Entity wieder ausschaltet, fährt die Abdeckung **sofort** in die Zielposition — ohne auf den nächsten Trigger zu warten.
 
-            💡 **Tip:** Use an `input_boolean` as a manual/automatic toggle. Unlike
+            💡 **Tipp:** Verwende einen `input_boolean` als Manuell/Automatik-Umschalter. Unlike
             putting a switch in the global condition (which blocks helper state updates
             too), this force pause only blocks cover movement. The helper always
             reflects the correct background state, so resuming is instant and reliable.
@@ -3727,7 +3724,7 @@ actions:
       # Helper Update Function
       # ═══════════════════════════════════════════════════════════════════════════
       # Usage: Set 'update_values' variable before calling with fields to update
-      # Example: update_values: { bas: 'cls', ts: { opn: ts_now } }
+      # Beispiel: update_values: { bas: 'cls', ts: { opn: ts_now } }
       # Uses v6 compact schema names directly (no internal name conversion)
       #
       # Fields: bas, shd (1/0), pnd (non/beg/end), win, frc, res (1/0), man (1/0)

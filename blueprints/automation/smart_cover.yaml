@@ -165,8 +165,6 @@ blueprint:
               options:
                 - label: "✏️ Use the time input fields in this blueprint section"
                   value: "time_control_input"
-                - label: "📅 Use a Home Assistant calendar"
-                  value: "time_control_calendar"
               sort: false
               multiple: false
               custom_value: false
@@ -263,16 +261,10 @@ blueprint:
               options:
                 - label: "↕️ Don't raise cover when closing for the evening"
                   value: "prevent_higher_position_closing"
-                - label: "⬇️ Keep shading position during evening close (don't lower further)"
-                  value: "prevent_lowering_when_closing_if_shaded"
-                - label: "☀️ Don't end shading if cover is already closed"
-                  value: "prevent_shading_end_if_closed"
                 - label: "☀️ Stay shaded: Don't open cover when sun shading ends"
                   value: prevent_opening_after_shading_end
                 - label: "🪟 Keep closed: Don't open cover when ventilation ends"
                   value: prevent_opening_after_ventilation_end
-                - label: "🔧 Use custom actions only (disable default set_cover_position/set_cover_tilt_position)"
-                  value: "prevent_default_cover_actions"
                 - label: "⏱️ Open cover only once per day"
                   value: "prevent_opening_multiple_times"
                 - label: "⏱️ Close cover only once per day"
@@ -359,14 +351,16 @@ blueprint:
             <em>Note: Ventilate Position is not used for awnings.</em>
 
             </details>
-          default: "blind"
+          default: "rolladen"
           selector:
             select:
               options:
-                - label: "🪟 Blind / Roller Shutter (Standard)"
-                  value: "blind"
-                - label: "☂️ Awning / Sunshade (Inverted)"
-                  value: "awning"
+                - label: "🪟 Rolladen (ohne Lamellen)"
+                  value: "rolladen"
+                - label: "🎚️ Jalousie / Lamellen"
+                  value: "jalousie"
+                - label: "☂️ Markise (invertierte Positionslogik)"
+                  value: "markise"
               mode: dropdown
 
         open_position:
@@ -735,84 +729,6 @@ blueprint:
               filter:
                 - domain:
                     - binary_sensor
-
-        workday_sensor_tomorrow:
-          name: "💼 Sensor For Workday Tomorrow (only for closing)"
-          description: >-
-            When <ins>closing</ins> the blinds, you have the option of checking the times for tomorrow rather than the current day.
-            This has the advantage that you can <ins>close</ins> the blinds earlier if <ins>tomorrow</ins> is a working day.
-            This makes sense if, for example, there is school tomorrow but today is actually still the weekend.
-            But the child has to go to bed earlier.<br />
-            If this field is not configured here, the normal working day sensor is used.
-            <br /><br />
-            I recommend using the [Workday integration](https://www.home-assistant.io/integrations/workday/).
-            <br /><br />
-            Example: `binary_sensor.workday_tomorrow`
-            <br /><br />`Optional`
-          default: []
-          selector:
-            entity:
-              filter:
-                - domain:
-                    - binary_sensor
-
-        calendar_entity:
-          name: "📅 Calendar Entity"
-          description: >-
-            Select a Home Assistant calendar for time control.
-
-            <details>
-            <summary><code><strong>CLICK HERE:</strong> How to use calendar control</code></summary>
-
-
-            **Event Titles (case-insensitive):**
-              - **"Open Cover"** - Marks the daytime window (cover should be open)
-              - **"Close Cover"** - Marks the evening window (cover should be closed)
-
-            **How it works:**
-              - When an "Open Cover" event starts, the automation treats it like morning time
-              - When a "Close Cover" event starts, the automation treats it like evening time
-              - Events can span multiple days
-              - Multiple events per day are supported
-
-            **Example schedule:**
-              - Monday to Friday: "Open Cover" from 06:00-20:00
-              - Saturday/Sunday: "Open Cover" from 08:00-22:00
-              - Automatically handles weekday/weekend differences
-
-            **Advantages over time input:**
-              - No need for separate workday/non-workday times
-              - Can define different times for each day
-              - Can create exceptions (holidays, vacations)
-              - Changes take effect immediately without automation reload
-
-            </details>
-          default: []
-          selector:
-            entity:
-              filter:
-                - domain: calendar
-              multiple: false
-
-        calendar_open_title:
-          name: "📂 Open Event Title"
-          description: >-
-            Title of calendar events that define the daytime window
-            (case-insensitive match).
-            Default: "Open Cover".
-          default: "Open Cover"
-          selector:
-            text: {}
-
-        calendar_close_title:
-          name: "📁 Close Event Title"
-          description: >-
-            Title of calendar events that define the evening/close window
-            (case-insensitive match).
-            Default: "Close Cover".
-          default: "Close Cover"
-          selector:
-            text: {}
 
     brightness_section:
       name: "Brightness Configuration"
@@ -1213,12 +1129,6 @@ blueprint:
               options:
                 - label: "💨 Disables the drive delay when ventilation starts (window opens/tilts)"
                   value: "ventilation_start_no_delay"
-                - label: "💨 Enables a calculated delay after the window is closed"
-                  value: "ventilation_delay_enabled"
-                - label: "💨 Lower cover to ventilation position when window tilts and cover is above"
-                  value: "ventilation_if_lower_enabled"
-                - label: "💨 Using the ventilation position when the sun shading is ended (instead of opening it completely)"
-                  value: "ventilation_after_shading_end"
                 - label: "💨 Keep cover at open position when window goes from fully opened to tilted"
                   value: "ventilation_keep_open_on_full_to_tilt"
               multiple: true
@@ -2276,86 +2186,24 @@ blueprint:
           selector:
             condition: {}
 
-        auto_ventilate_condition:
-          name: "💨 Additional Condition For Activating Ventilation"
-          description: >-
-            This condition can be used to dynamically control the <ins>start of the ventilation</ins> of the cover.
-            <br /><br />
-            If the result of this condition is <ins>true</ins>, the automation will continue.<br />
-            The result of the conditions must be <ins>false</ins>, for the automation to stop in this sequence.
-          default: []
-          selector:
-            condition: {}
-
-        auto_ventilate_end_condition:
-          name: "💨 Additional Condition For Disabling Ventilation"
-          description: >-
-            This condition can be used to dynamically control the <ins>end of the ventilation</ins> of the cover.
-            <br /><br />
-            If the result of this condition is <ins>true</ins>, the automation will continue.<br />
-            The result of the conditions must be <ins>false</ins>, for the automation to stop in this sequence.
-          default: []
-          selector:
-            condition: {}
-
-        auto_shading_start_condition:
-          name: "🥵 Additional Condition When Activating Sun Shading"
-          description: >-
-            This condition can be used to dynamically control the <ins>shading-IN-automation</ins> of the cover.
-            This can be useful if you want to temporarily disable automation (e.g. because of control by other automations).
-            <br /><br />
-            If the result of this condition is <ins>true</ins>, the automation will continue.<br />
-            The result of the conditions must be <ins>false</ins>, for the automation to stop in this sequence.
-            <br />
-            Another example: Here you could also set that the shading is only triggered in the summer season.
-          default: []
-          selector:
-            condition: {}
-
-        auto_shading_tilt_condition:
-          name: "🥵 Additional Condition For Sun Shading Tilt"
-          description: >-
-            This condition can be used to dynamically control the <ins>shading_tilt-IN-automation</ins>
-            of the cover. This can be useful if you want to temporarily disable automation
-            (e.g. because of control by other automations). <br /> Another example:
-            Here you could also set that the tilting is only triggered in the summer season.
-            <br /><br />
-            If the result of this condition is <ins>true</ins>, the automation will continue.<br />
-            The result of the conditions must be <ins>false</ins>, for the automation to stop in this sequence.
-          default: []
-          selector:
-            condition: {}
-
-        auto_shading_end_condition:
-          name: "🥵 Additional Condition When Deactivating Sun Shading"
-          description: >-
-            This condition can be used to dynamically control the <ins>shading-OUT-automation</ins> of the cover.
-            This can be useful if you want to temporarily disable automation (e.g. because of control by other automations).
-            <br />
-            If the result of this condition is <ins>true</ins>, the automation will continue.<br />
-            The result of the conditions must be <ins>false</ins>, for the automation to stop in this sequence.
-          default: []
-          selector:
-            condition: {}
-
     force_section:
       name: "Force Features"
       description: >-
         <center><p><small>
           Emergency override controls for weather protection and special scenarios
           <br />
-          Force functions allow you to immediately move covers to specific positions, overriding all other automation logic.
-          <br />
-          Use cases include: rain protection, wind protection, frost prevention, or temporary manual control.
-          <br />
-          📖 See: <a href="https://hvorragend.github.io/ha-blueprints/FAQ#q-how-does-a-force-function-work">FAQ: How does a force function work?</a>
-          <br />
-          <br />
-          All settings in this section are optional
+          ⚠️ Activate the toggle below to configure force features.
         </small></p></center>
       icon: mdi:arm-flex
       collapsed: true
       input:
+        force_features_enabled:
+          name: "⚙️ Force Features aktivieren"
+          description: "Notfall-Override per Entity aktivieren (Regen-/Windschutz, Pause, etc.)"
+          default: false
+          selector:
+            boolean: {}
+
         auto_recover_after_force:
           name: "🔙 Return to Target State After Force Disable"
           description: >-
@@ -2474,8 +2322,19 @@ blueprint:
       name: "Additional Actions"
       description: >-
         <center><p><small>
-          All these settings are optional
+          Eigene Aktionen vor/nach jeder Rolladen-Bewegung ausführen (z.B. Benachrichtigungen, Hardware-Quirks).
+          <br />
+          ⚠️ Activate the toggle below to configure additional actions.
         </small></p></center>
+      icon: mdi:run
+      collapsed: true
+      input:
+        additional_actions_enabled:
+          name: "⚙️ Additional Actions aktivieren"
+          description: "Eigene Aktionen vor/nach Cover-Bewegungen konfigurieren"
+          default: false
+          selector:
+            boolean: {}
       icon: mdi:run
       collapsed: true
       input:
@@ -2562,69 +2421,6 @@ blueprint:
           default: []
           selector:
             action: {}
-
-    configcheck_section:
-      name: "Configuration Check"
-      description: >-
-        <center><p><small>
-        <strong>🔗 Use the <a href="https://hvorragend.github.io/ha-blueprints/validator/" target="_blank">Online Configuration Validator</a></strong>
-        <br />
-        Validate your YAML configuration for errors, typos, and deprecated parameters before deploying.
-        <br />
-        ✅ Instant feedback • 🔍 Typo detection • ⚠️ Migration guidance • 🔒 Privacy-friendly (client-side)
-        </small></p></center>
-      icon: mdi:invoice-text-check-outline
-      collapsed: true
-      input:
-        check_config:
-          name: "✔️ Check Configuration"
-          description: >-
-            With this boolean, you can enable or disable the basic plausibility check for the configuration.
-            The check only takes place if the automation is executed manually.
-            <br /><br />
-            Use the <a href="https://hvorragend.github.io/ha-blueprints/validator/" target="_blank">online validator</a> for another validation.
-          default: false
-          selector:
-            boolean: {}
-
-        check_config_debuglevel:
-          name: "✔️ Check Configuration - Debug level"
-          description: >-
-            Choose the debug level for Syslog messages in case of configuration issues
-            <br />
-            Please make sure that it suits your Home Assistant logger default level.
-          default: "info"
-          selector:
-            select:
-              multiple: false
-              mode: dropdown
-              options:
-                - "critical"
-                - "debug"
-                - "error"
-                - "info"
-                - "warning"
-
-    logging_section:
-      name: "Logging"
-      description: >-
-        Optional logbook output for retrospective debugging. Each automation
-        run writes one combined logbook entry containing the trigger, the
-        resulting effective state, and a snapshot of all relevant sensor
-        values. Useful when the 5-trace history is not enough to understand
-        a cover's behavior over the day.
-      icon: mdi:notebook-outline
-      collapsed: true
-      input:
-        enable_logbook:
-          name: "📓 Enable Logbook entries"
-          description: >-
-            When enabled, every automation run writes a single logbook entry
-            with full context. Disabled by default to avoid noise in the
-            Activities view. Toggle on while debugging a configuration.
-          default: false
-          selector:
-            boolean: {}
 
 ################################################################################
 # TRIGGER VARIABLES

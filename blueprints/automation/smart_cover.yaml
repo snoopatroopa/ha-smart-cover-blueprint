@@ -319,10 +319,6 @@ blueprint:
           name: "📍 Custom Position Sensor"
           description: "Select sensor that provides position (0-100%). Only used if 'Custom sensor' selected above"
           default: []
-          conditions:
-            - condition: blueprint_input
-              input_id: position_source
-              value: "custom_sensor"
           selector:
             entity:
               domain: sensor
@@ -900,15 +896,6 @@ blueprint:
             <br /><br />
             The cover will be <ins>opened</ins> if the sun elevation is over the calculated threshold.
           default: 0
-          conditions:
-            - condition: or
-              conditions:
-                - condition: blueprint_input
-                  input_id: sun_elevation_mode
-                  value: "fixed"
-                - condition: blueprint_input
-                  input_id: sun_elevation_mode
-                  value: "hybrid"
           selector:
             number:
               min: -90.0
@@ -926,15 +913,6 @@ blueprint:
             <br /><br />
             The cover will be <ins>closed</ins> if the sun elevation is under the calculated threshold.
           default: 0
-          conditions:
-            - condition: or
-              conditions:
-                - condition: blueprint_input
-                  input_id: sun_elevation_mode
-                  value: "fixed"
-                - condition: blueprint_input
-                  input_id: sun_elevation_mode
-                  value: "hybrid"
           selector:
             number:
               min: -90.0
@@ -948,15 +926,6 @@ blueprint:
           description: >-
             Optional sensor that provides a **dynamic elevation threshold** for opening based on season.
             This sensor value is compared with the **sun elevation from the sun integration** (`sun.sun` attribute `elevation`).
-          conditions:
-            - condition: or
-              conditions:
-                - condition: blueprint_input
-                  input_id: sun_elevation_mode
-                  value: "dynamic"
-                - condition: blueprint_input
-                  input_id: sun_elevation_mode
-                  value: "hybrid"
           default: []
           selector:
             entity:
@@ -967,15 +936,6 @@ blueprint:
           name: "☀️ Sun Elevation Down Sensor (Dynamic/Hybrid)"
           description: >-
             Optional sensor that provides a **dynamic elevation threshold** for closing based on season.
-          conditions:
-            - condition: or
-              conditions:
-                - condition: blueprint_input
-                  input_id: sun_elevation_mode
-                  value: "dynamic"
-                - condition: blueprint_input
-                  input_id: sun_elevation_mode
-                  value: "hybrid"
           default: []
           selector:
             entity:
@@ -1832,10 +1792,6 @@ blueprint:
           description: >-
             These options allow you to fine-tune how the system handles temperature-based shading.
             <p><em>Click on the titles to get further help.</em></p>
-          conditions:
-            - condition: blueprint_input
-              input_id: shading_advanced_enabled
-              value: true
           default: []
           selector:
             select:
@@ -2060,10 +2016,6 @@ blueprint:
           name: "🗑️ Time to reset manual override"
           description: "At what time do you want the manual detection to be reset?"
           default: "00:01:00"
-          conditions:
-            - condition: blueprint_input
-              input_id: reset_override_config
-              value: "reset_fixed_time"
           selector:
             time: {}
 
@@ -2071,10 +2023,6 @@ blueprint:
           name: "🗑️ Number of minutes until reset manual override"
           description: "After how many minutes should it be reset?"
           default: 5
-          conditions:
-            - condition: blueprint_input
-              input_id: reset_override_config
-              value: "reset_timeout"
           selector:
             number:
               min: 0
@@ -2218,10 +2166,6 @@ blueprint:
 
             </details>
           default: auto_recover_disabled
-          conditions:
-            - condition: blueprint_input
-              input_id: force_features_enabled
-              value: true
           selector:
             select:
               options:
@@ -2249,10 +2193,6 @@ blueprint:
             too), this force pause only blocks cover movement. The helper always
             reflects the correct background state, so resuming is instant and reliable.
           default: []
-          conditions:
-            - condition: blueprint_input
-              input_id: force_features_enabled
-              value: true
           selector:
             entity:
               domain:
@@ -2264,10 +2204,6 @@ blueprint:
           description: >-
             If the status of this entity changes to on or true, the cover is opened immediately and without further checking.
           default: []
-          conditions:
-            - condition: blueprint_input
-              input_id: force_features_enabled
-              value: true
           selector:
             entity:
               domain:
@@ -2280,10 +2216,6 @@ blueprint:
           description: >-
             If the status of this entity changes to on or true, the cover is closed immediately and without further checking.
           default: []
-          conditions:
-            - condition: blueprint_input
-              input_id: force_features_enabled
-              value: true
           selector:
             entity:
               domain:
@@ -2296,10 +2228,6 @@ blueprint:
           description: >-
             If the status of this entity changes to on or true, the cover is immediately set to ventilation mode and without further checking.
           default: []
-          conditions:
-            - condition: blueprint_input
-              input_id: force_features_enabled
-              value: true
           selector:
             entity:
               domain:
@@ -2312,10 +2240,6 @@ blueprint:
           description: >-
             If the status of this entity changes to on or true, the shading is immediately activated and without further checking.
           default: []
-          conditions:
-            - condition: blueprint_input
-              input_id: force_features_enabled
-              value: true
           selector:
             entity:
               domain:
@@ -2347,10 +2271,6 @@ blueprint:
           name: "🔼 Additional Actions Before Opening The Cover"
           description: "Additional actions to run <ins>before</ins> opening the cover"
           default: []
-          conditions:
-            - condition: blueprint_input
-              input_id: additional_actions_enabled
-              value: true
           selector:
             action: {}
 
@@ -2358,10 +2278,6 @@ blueprint:
           name: "🔼 Additional Actions After Opening The Cover"
           description: "Additional actions to run <ins>after</ins> opening the cover"
           default: []
-          conditions:
-            - condition: blueprint_input
-              input_id: additional_actions_enabled
-              value: true
           selector:
             action: {}
 
@@ -2369,10 +2285,6 @@ blueprint:
           name: "🔻 Additional Actions Before Closing The Cover"
           description: "Additional actions to run <ins>before</ins> closing the cover"
           default: []
-          conditions:
-            - condition: blueprint_input
-              input_id: additional_actions_enabled
-              value: true
           selector:
             action: {}
 
@@ -2380,10 +2292,6 @@ blueprint:
           name: "🔻 Additional Actions After Closing The Cover"
           description: "Additional actions to run <ins>after</ins> closing the cover"
           default: []
-          conditions:
-            - condition: blueprint_input
-              input_id: additional_actions_enabled
-              value: true
           selector:
             action: {}
 
@@ -2391,10 +2299,6 @@ blueprint:
           name: "💨 Additional Actions Before Ventilating The Cover"
           description: "Additional actions to run <ins>before</ins> ventilating the cover"
           default: []
-          conditions:
-            - condition: blueprint_input
-              input_id: additional_actions_enabled
-              value: true
           selector:
             action: {}
 
@@ -2402,10 +2306,6 @@ blueprint:
           name: "💨 Additional Actions After Ventilating The Cover"
           description: "Additional actions to run <ins>after</ins> ventilating the cover"
           default: []
-          conditions:
-            - condition: blueprint_input
-              input_id: additional_actions_enabled
-              value: true
           selector:
             action: {}
 
@@ -2413,10 +2313,6 @@ blueprint:
           name: "🥵 Additional Actions Before Activating Sun Shading"
           description: "Additional actions to run <ins>before</ins> activating sun shading"
           default: []
-          conditions:
-            - condition: blueprint_input
-              input_id: additional_actions_enabled
-              value: true
           selector:
             action: {}
 
@@ -2424,10 +2320,6 @@ blueprint:
           name: "🥵 Additional Actions After Activating Sun Shading"
           description: "Additional actions to run <ins>after</ins> activating sun shading"
           default: []
-          conditions:
-            - condition: blueprint_input
-              input_id: additional_actions_enabled
-              value: true
           selector:
             action: {}
 
@@ -2435,10 +2327,6 @@ blueprint:
           name: "🥵 Additional Actions Before Disabling Sun Shading"
           description: "Additional actions to run <ins>before</ins> disabling sun shading"
           default: []
-          conditions:
-            - condition: blueprint_input
-              input_id: additional_actions_enabled
-              value: true
           selector:
             action: {}
 
@@ -2446,10 +2334,6 @@ blueprint:
           name: "🥵 Additional Actions After Disabling Sun Shading"
           description: "Additional actions to run <ins>after</ins> disabling sun shading"
           default: []
-          conditions:
-            - condition: blueprint_input
-              input_id: additional_actions_enabled
-              value: true
           selector:
             action: {}
 
@@ -2457,10 +2341,6 @@ blueprint:
           name: "🖐️ Additional Actions After Manual Change"
           description: "Additional actions after a manual change to the covers"
           default: []
-          conditions:
-            - condition: blueprint_input
-              input_id: additional_actions_enabled
-              value: true
           selector:
             action: {}
 
@@ -2468,10 +2348,6 @@ blueprint:
           name: "🗑️ Additional Actions After Override Reset"
           description: "Additional actions to be taken after resetting the manual override"
           default: []
-          conditions:
-            - condition: blueprint_input
-              input_id: additional_actions_enabled
-              value: true
           selector:
             action: {}
 

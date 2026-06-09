@@ -3255,22 +3255,8 @@ triggers:
     id: "t_force_disabled_close"
 
   ########################################
-  # Calendar-based triggers
+  # Calendar-based triggers (disabled - calendar feature removed)
   ########################################
-
-# Calendar event starts (state becomes "on")
-  - trigger: state
-    entity_id: "{{ calendar_entity }}"
-    to: "on"
-    enabled: "{{ is_calendar_enabled }}"
-    id: "t_calendar_event_start"
-
-  # Calendar event ends (state becomes "off")
-  - trigger: state
-    entity_id: "{{ calendar_entity }}"
-    to: "off"
-    enabled: "{{ is_calendar_enabled }}"
-    id: "t_calendar_event_end"
 
   #################################################
   # Trigger for ventilation - COMBINED

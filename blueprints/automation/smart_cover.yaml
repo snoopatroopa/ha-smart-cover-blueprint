@@ -4,7 +4,7 @@ blueprint:
     # 🪟 Smart Cover Blueprint
     Ein vereinfachtes Home Assistant Blueprint zur automatischen Rolladen-, Jalousie- und Markisensteuerung — basierend auf Uhrzeit, Sonnenstand, Helligkeit und Wetter.
 
-    **Version**: 2026.05.28
+    **Version**: 2026.6.9
 
     **Basierend auf**: [Cover Control Automation (CCA)](https://github.com/hvorragend/ha-blueprints) von hvorragend
     <sub>Lizenz: Open-Source. Basierend auf CCA von hvorragend.</sub>
@@ -2513,7 +2513,7 @@ trigger_variables:
 ################################################################################
 
 variables:
-  version: "2026.05.28"
+  version: "2026.6.9"
 
   # Force pause
   is_paused: "{{ force_pause != [] and states(force_pause) in ['on', 'true'] }}"

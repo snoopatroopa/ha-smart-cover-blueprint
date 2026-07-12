@@ -4,7 +4,7 @@ blueprint:
     # 🪟 Smart Cover Blueprint
     Ein vereinfachtes Home Assistant Blueprint zur automatischen Rolladen-, Jalousie- und Markisensteuerung — basierend auf Uhrzeit, Sonnenstand, Helligkeit und Wetter.
 
-    **Version**: 2026.6.9
+    **Version**: 2026.7.12
 
     **Basierend auf**: [Cover Control Automation (CCA)](https://github.com/hvorragend/ha-blueprints) von hvorragend
     <sub>Lizenz: Open-Source. Basierend auf CCA von hvorragend.</sub>
@@ -393,6 +393,34 @@ blueprint:
               min: 0.0
               max: 100.0
               unit_of_measurement: "%"
+
+        shading_position_alt:
+          name: "🥵 Alternative Beschattungsposition"
+          description: >-
+            Optionale zweite Beschattungsposition. Ist die unten gewählte Gating-Entity 'ein',
+            fährt die Abdeckung bei Beschattung auf diese Position statt auf die normale Beschattungsposition.
+            <br /><br />Leer lassen um die alternative Beschattungsposition zu deaktivieren.
+          default: []
+          selector:
+            number:
+              min: 0.0
+              max: 100.0
+              unit_of_measurement: "%"
+
+        shading_position_alt_entity:
+          name: "🥵 Trigger für alternative Beschattungsposition"
+          description: >-
+            Solange diese Entity 'ein' ist, beschattet die Abdeckung auf die alternative Beschattungsposition oben statt auf die normale.
+            Ist sie 'aus' (oder nicht gesetzt), wird die normale Beschattungsposition verwendet.
+            Ist die Abdeckung bereits am Beschatten wenn sich diese Entity ändert, wird sie auf die passende Position nachgefahren.
+            <br /><br />Leer lassen um die alternative Beschattungsposition zu deaktivieren.
+          default: []
+          selector:
+            entity:
+              multiple: false
+              domain:
+                - binary_sensor
+                - input_boolean
 
         position_tolerance:
           name: "〰️ Positionstoleranz"
@@ -2356,6 +2384,8 @@ trigger_variables:
   close_position: !input close_position
   ventilate_position: !input ventilate_position
   shading_position: !input shading_position
+  shading_position_alt: !input shading_position_alt
+  shading_position_alt_entity: !input shading_position_alt_entity
   position_tolerance: !input position_tolerance
 
   # Tilt positions
@@ -2513,7 +2543,7 @@ trigger_variables:
 ################################################################################
 
 variables:
-  version: "2026.6.9"
+  version: "2026.7.12"
 
   # Force pause
   is_paused: "{{ force_pause != [] and states(force_pause) in ['on', 'true'] }}"
@@ -2537,6 +2567,14 @@ variables:
   # Same for tilt if enabled
   current_tilt_position: "{{ state_attr(blind, 'current_tilt_position') | int(default=101) }}"
 
+  # Effective shading position - uses the alternate position while the gating entity is 'on'
+  effective_shading_position: >-
+    {% if shading_position_alt != [] and shading_position_alt_entity != [] and states(shading_position_alt_entity) == 'on' %}
+      {{ shading_position_alt }}
+    {% else %}
+      {{ shading_position }}
+    {% endif %}
+
   # COVER TYPE & POSITION COMPARISON LOGIC
   # Position comparison results
   # Handles both blind (0%=closed) and awning (0%=retracted) logic automatically
@@ -2544,19 +2582,19 @@ variables:
     # Current position vs targets (considers awning inversion)
     current_above_open: "{{ current_position < open_position if is_awning else current_position > open_position }}"
     current_above_close: "{{ current_position < close_position if is_awning else current_position > close_position }}"
-    current_above_shading: "{{ current_position < shading_position if is_awning else current_position > shading_position }}"
+    current_above_shading: "{{ current_position < effective_shading_position if is_awning else current_position > effective_shading_position }}"
     current_above_ventilate: "{{ current_position < ventilate_position if is_awning else current_position > ventilate_position }}"
 
     current_below_open: "{{ current_position > open_position if is_awning else current_position < open_position }}"
     current_below_close: "{{ current_position > close_position if is_awning else current_position < close_position }}"
-    current_below_shading: "{{ current_position > shading_position if is_awning else current_position < shading_position }}"
+    current_below_shading: "{{ current_position > effective_shading_position if is_awning else current_position < effective_shading_position }}"
     current_below_ventilate: "{{ current_position > ventilate_position if is_awning else current_position < ventilate_position }}"
 
     # Position ordering (for config validation)
     open_above_close: "{{ open_position < close_position if is_awning else open_position > close_position }}"
     open_above_ventilate: "{{ open_position < ventilate_position if is_awning else open_position > ventilate_position }}"
-    shading_above_close: "{{ shading_position < close_position if is_awning else shading_position > close_position }}"
-    shading_below_open: "{{ shading_position > open_position if is_awning else shading_position < open_position }}"
+    shading_above_close: "{{ effective_shading_position < close_position if is_awning else effective_shading_position > close_position }}"
+    shading_below_open: "{{ effective_shading_position > open_position if is_awning else effective_shading_position < open_position }}"
     ventilate_above_close: "{{ ventilate_position < close_position if is_awning else ventilate_position > close_position }}"
 
   current_sun_azimuth: "{{ state_attr(default_sun_sensor, 'azimuth') }}"
@@ -2677,8 +2715,8 @@ variables:
   #       it was correctly set before. Consider storing the last applied tilt in the JSON helper
   #       (e.g. field 'tp') and comparing against that instead of the dynamic value.
   in_shading_position: >-
-    {% set min = shading_position - position_tolerance %}
-    {% set max = shading_position + position_tolerance %}
+    {% set min = effective_shading_position - position_tolerance %}
+    {% set max = effective_shading_position + position_tolerance %}
     {{
       is_shading_enabled
       and (current_position >= min and current_position <= max)
@@ -3374,6 +3412,14 @@ triggers:
     to: "off"
     enabled: "{{ force_pause != [] }}"
     id: "t_force_pause_disabled"
+
+  - trigger: state
+    entity_id: !input shading_position_alt_entity
+    not_to:
+      - unavailable
+      - unknown
+    enabled: "{{ is_shading_enabled and shading_position_alt_entity != [] }}"
+    id: "t_shading_position_alt"
 
   ########################################
   # Triggers for shading tilt
@@ -4627,7 +4673,7 @@ actions:
                   - "{{ not in_shading_position }}" # Even if this is hardly possible, there may be situations that require it. Purely as a precautionary measure in case the target state and actual state do not match.
                 sequence:
                   - variables:
-                      target_position: !input shading_position
+                      target_position: "{{ effective_shading_position | int }}"
                       target_tilt_position: "{{ shading_tilt_position | int }}"
                       update_values:
                         # Activate shading, base state is open (time-based)
@@ -4988,12 +5034,12 @@ actions:
                                           - "{{ position_comparisons.current_above_shading }}"
                                       - and:
                                           - "{{ is_cover_tilt_enabled_and_possible }}"
-                                          - "{{ position_comparisons.current_above_shading or current_position == shading_position }}"
+                                          - "{{ position_comparisons.current_above_shading or current_position == effective_shading_position }}"
                                   - "{{ is_shading_allowed_window }}" # Shading during daytime window
                                   - "{{ resident_flags.allow_shade }}"
                                 sequence:
                                   - variables:
-                                      target_position: !input shading_position
+                                      target_position: "{{ effective_shading_position | int }}"
                                       target_tilt_position: "{{ shading_tilt_position | int }}"
                                       update_values:
                                         # Activate shading
@@ -5185,6 +5231,30 @@ actions:
           - *tilt_move_action
           - *helper_update
           - stop: "Shading Tilt executed"
+
+      - alias: "Check for alternate shading position"
+        conditions:
+          - "{{ is_shading_enabled }}"
+          - "{{ trigger.id is defined }}"
+          - "{{ trigger.id | regex_match('^(t_shading_position_alt)') }}"
+          - and:
+              - "{{ helper_state_is_shaded }}"
+              - "{{ not helper_state_pending_start }}"
+          - "{{ not in_shading_position }}" # Only re-drive if the effective position actually changed
+          - "{{ force_allows_shade }}"
+          - "{{ resident_flags.allow_shade }}"
+          - "{{ not (contact_window_opened != [] and states(contact_window_opened) in ['true', 'on']) and not (contact_window_tilted != [] and states(contact_window_tilted) in ['true', 'on']) }}"
+          - "{{ not (helper_state_manual and override_flags.shading) }}" # Override check
+        sequence:
+          - variables:
+              target_position: "{{ effective_shading_position | int }}"
+              target_tilt_position: "{{ shading_tilt_position | int }}"
+              update_values:
+                man: "{{ 0 if force_allows_shade else helper_json.man | default(0) | int }}"
+          - *cover_move_action
+          - *tilt_move_action
+          - *helper_update
+          - stop: "Alternate shading position executed"
 
       ############################################################
       # BRANCH (4): SHADING END
@@ -5659,7 +5729,7 @@ actions:
                   - condition: !input auto_ventilate_end_condition
                 sequence:
                   - variables:
-                      target_position: !input shading_position
+                      target_position: "{{ effective_shading_position | int }}"
                       target_tilt_position: "{{ shading_tilt_position | int }}"
                       update_values:
                         # Window closed, return to shading (shade is already true)
@@ -5851,7 +5921,7 @@ actions:
                           - "{{ is_shading_enabled }}"
                         sequence:
                           - variables:
-                              target_position: !input shading_position
+                              target_position: "{{ effective_shading_position | int }}"
                               target_tilt_position: "{{ shading_tilt_position | int }}"
                               update_values:
                                 # Resident leaving, shade already active — preserve ts.shd
@@ -6102,7 +6172,7 @@ actions:
                   - "{{ trigger.id == 't_force_enabled_shading' }}"
                 sequence:
                   - variables:
-                      target_position: !input shading_position
+                      target_position: "{{ effective_shading_position | int }}"
                       target_tilt_position: "{{ shading_tilt_position |int }}"
                       update_values:
                         # Force shading activated
@@ -6173,7 +6243,7 @@ actions:
                 conditions: "{{ effective_state == 'shd' and helper_json.frc == 'shd' }}"
                 sequence:
                   - variables:
-                      target_position: !input shading_position
+                      target_position: "{{ effective_shading_position | int }}"
                       target_tilt_position: "{{ shading_tilt_position | int }}"
                       update_values:
                         man: 0
@@ -6253,7 +6323,7 @@ actions:
                 conditions: "{{ effective_state == 'shd' }}"
                 sequence:
                   - variables:
-                      target_position: !input shading_position
+                      target_position: "{{ effective_shading_position | int }}"
                       target_tilt_position: "{{ shading_tilt_position | int }}"
                       update_values:
                         man: 0
@@ -6402,7 +6472,7 @@ actions:
                   - "{{ next_active_force == 'shd' }}"
                 sequence:
                   - variables:
-                      target_position: !input shading_position
+                      target_position: "{{ effective_shading_position | int }}"
                       target_tilt_position: "{{ shading_tilt_position | int }}"
                       update_values:
                         # Switch to force shading
@@ -6492,7 +6562,7 @@ actions:
                               - "{{ resident_flags.allow_shade }}"
                             sequence:
                               - variables:
-                                  target_position: !input shading_position
+                                  target_position: "{{ effective_shading_position | int }}"
                                   target_tilt_position: "{{ shading_tilt_position | int }}"
                                   update_values:
                                     # Force ended, return to shading

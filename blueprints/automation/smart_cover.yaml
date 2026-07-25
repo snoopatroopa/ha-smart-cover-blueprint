@@ -4624,7 +4624,7 @@ actions:
           - "{{ not (helper_state_manual and override_flags.opening) }}" # Override check
           - or: # Only once a day?
               - "{{ not prevent_flags.opening_multiple_times }}"
-              - "{{ prevent_flags.opening_multiple_times and ((now().day != helper_ts_open|timestamp_custom('%-d')|int) or helper_ts_man <= helper_ts_open) }}"
+              - "{{ prevent_flags.opening_multiple_times and ((now().strftime('%Y-%m-%d') != helper_ts_open|timestamp_custom('%Y-%m-%d')) or helper_ts_man <= helper_ts_open) }}"
           - or: # Opening scenarios - works for BOTH time and calendar mode
               - "{{ is_time_control_disabled }}"
               - and: # Ultimate opening ONLY for specific time triggers (no environment checks)
@@ -4944,7 +4944,7 @@ actions:
               - "{{ is_cover_tilt_enabled_and_possible }}"
           - or: # Only once a day?
               - "{{ not prevent_flags.shading_multiple_times }}"
-              - "{{ prevent_flags.shading_multiple_times and ((now().day != helper_ts_shade|timestamp_custom('%-d')|int) or helper_ts_man <= helper_ts_shade) }}"
+              - "{{ prevent_flags.shading_multiple_times and ((now().strftime('%Y-%m-%d') != helper_ts_shade|timestamp_custom('%Y-%m-%d')) or helper_ts_man <= helper_ts_shade) }}"
               - "{{ trigger.id | regex_match('^(t_shading_start_execution)') }}" # Execution must not be stopped if there is a shading pending in the helper beforehand.
           - "{{ resident_flags.allow_shade }}"
 
@@ -5324,7 +5324,7 @@ actions:
                       - "{{ prevent_flags.opening_after_shading_end}}"
                     sequence:
                       - variables:
-                          target_tilt_position: 50 # Moving the cover to open tilt position
+                          target_tilt_position: !input open_tilt_position
                           update_values:
                             # Clear shading, tilt only
                             shd: 0
@@ -5388,7 +5388,7 @@ actions:
                           - "{{ states(contact_window_opened) in ['false', 'off'] }}"
                       - or:
                           - "{{ position_comparisons.current_below_ventilate }}"
-                          - "{{ ventilation_flags.if_lower_enabled and position_comparisons.current_above_ventilate or current_position == ventilate_position }}"
+                          - "{{ ventilation_flags.if_lower_enabled and (position_comparisons.current_above_ventilate or current_position == ventilate_position) }}"
                     sequence:
                       - variables:
                           target_position: !input ventilate_position

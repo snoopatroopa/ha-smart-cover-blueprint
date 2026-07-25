@@ -4,7 +4,7 @@ blueprint:
     # 🪟 Smart Cover Blueprint
     Ein vereinfachtes Home Assistant Blueprint zur automatischen Rolladen-, Jalousie- und Markisensteuerung — basierend auf Uhrzeit, Sonnenstand, Helligkeit und Wetter.
 
-    **Version**: 2026.7.12
+    **Version**: 2026.7.25
 
     **Basierend auf**: [Cover Control Automation (CCA)](https://github.com/hvorragend/ha-blueprints) von hvorragend
     <sub>Lizenz: Open-Source. Basierend auf CCA von hvorragend.</sub>
@@ -2261,6 +2261,50 @@ blueprint:
                 - binary_sensor
                 - switch
 
+    recovery_section:
+      name: "Wiederherstellung"
+      description: >-
+        <center><p><small>
+          Verpasstes Öffnen/Schließen nach einem Neustart oder Ausfall automatisch nachholen.
+        </small></p></center>
+      icon: mdi:backup-restore
+      collapsed: true
+      input:
+        recovery_mode:
+          name: "🔄 Wiederherstellung nach Neustart oder Ausfall"
+          description: >-
+            Legt fest, ob ein verpasstes Öffnen/Schließen nachgeholt wird, wenn die Abdeckung
+            zwischenzeitlich nicht erreichbar war (z.B. Home-Assistant-Neustart, Zigbee-/Integrations-Ausfall).
+
+            **🚫 Nie (Standard)**: Die Abdeckung bewegt sich nie allein wegen eines Neustarts oder
+            Ausfalls. Ein verpasstes Öffnen/Schließen bleibt bis zum nächsten regulären Trigger liegen.
+
+            **⚠️ Nur bei Ausfall**: Holt ein verpasstes Öffnen/Schließen nach, sobald die Abdeckung
+            wieder erreichbar ist.
+            <br /><br />⚠️ <strong>Hinweis:</strong> Da die Abdeckung bei einem Home-Assistant-Neustart
+            technisch ebenfalls kurz "nicht verfügbar" ist, kann diese Option auch nach einem reinen
+            Neustart nachholen — eine hundertprozentige Unterscheidung zwischen "nur Ausfall" und
+            "Neustart" ist mit Bordmitteln nicht zuverlässig möglich.
+
+            **✅ Immer**: Holt ein verpasstes Öffnen/Schließen zusätzlich auch direkt bei jedem
+            Home-Assistant-Start nach.
+
+            <br />In jedem Modus gilt: Die Abdeckung wird nur bewegt, wenn die normalen Bedingungen
+            (Zusatzbedingung, Zeitfenster/Umgebung, "nur einmal am Tag") das Öffnen/Schließen ohnehin
+            erlauben würden, und ein aktiver manueller Override wird respektiert — das Nachholen
+            durchläuft exakt dieselbe Prüfung wie ein regulärer Öffnen-/Schließen-Trigger.
+          default: "never"
+          selector:
+            select:
+              options:
+                - label: "🚫 Nie (Standard)"
+                  value: "never"
+                - label: "⚠️ Nur bei Ausfall"
+                  value: "outage_only"
+                - label: "✅ Immer"
+                  value: "always"
+              mode: dropdown
+
     actions_section:
       name: "Zusätzliche Aktionen"
       description: >-
@@ -2507,6 +2551,9 @@ trigger_variables:
   # Ventilation and tilt are only available for blinds, not awnings
   is_ventilation_enabled: "{{ not is_awning and 'auto_ventilate_enabled' in auto_options }}"
 
+  # Recovery after restart/outage
+  recovery_mode: !input recovery_mode
+
   # Reset override flag computation
   reset_override_config: !input reset_override_config
   reset_override_time: !input reset_override_time
@@ -2543,7 +2590,7 @@ trigger_variables:
 ################################################################################
 
 variables:
-  version: "2026.7.12"
+  version: "2026.7.25"
 
   # Force pause
   is_paused: "{{ force_pause != [] and states(force_pause) in ['on', 'true'] }}"
@@ -2924,7 +2971,17 @@ variables:
   # LIVE RESIDENT STATE - Read directly from sensor, not from helper.
   # Use this (and resident_flags which depends on it) wherever the real-time sensor state matters,
   # e.g. in the resident arriving/leaving handler where helper_json.res hasn't been updated yet.
-  state_resident: "{{ resident_sensor != [] and states(resident_sensor) in ['on', 'true'] }}"
+  # Falls back to the last known value stored in the helper while the sensor
+  # itself is unavailable/unknown (e.g. during a restart or outage), instead
+  # of wrongly assuming "away" and disabling privacy-closing/lockout.
+  state_resident: >-
+    {% if resident_sensor == [] %}
+      {{ false }}
+    {% elif states(resident_sensor) in invalid_states %}
+      {{ helper_json.res | default(0) | int == 1 }}
+    {% else %}
+      {{ states(resident_sensor) in ['on', 'true'] }}
+    {% endif %}
 
   # EFFECTIVE STATE - The actual state the cover should be in based on priority cascade
   # Replaces v5's state_current (which was just an alias with old names vpart/vfull)
@@ -2936,9 +2993,13 @@ variables:
     {% set allow_shade = 'resident_allow_shading' in resident_config or not resident_present %}
     {% set allow_open = 'resident_allow_opening' in resident_config or not resident_present %}
     {% set privacy_active = resident_present and 'resident_closing_enabled' in resident_config %}
+    {% set opened_usable = contact_window_opened == [] or states(contact_window_opened) not in invalid_states %}
+    {% set tilted_usable = contact_window_tilted == [] or states(contact_window_tilted) not in invalid_states %}
     {% set s_opn = contact_window_opened != [] and states(contact_window_opened) in ['true', 'on'] %}
     {% set s_tlt = contact_window_tilted != [] and states(contact_window_tilted) in ['true', 'on'] %}
-    {% set w = 'opn' if s_opn else 'tlt' if s_tlt else h.win if (contact_window_opened == [] and contact_window_tilted == []) else 'cls' %}
+    {# A configured but currently unavailable/unknown contact falls back to the last known
+       combined window state instead of being silently treated as "closed". #}
+    {% set w = 'opn' if s_opn else 'tlt' if s_tlt else h.win if ((contact_window_opened == [] and contact_window_tilted == []) or not opened_usable or not tilted_usable) else 'cls' %}
     {% if h.frc != 'non' %}
       {{ h.frc }}
     {% elif w == 'opn' %}
@@ -3592,6 +3653,48 @@ triggers:
     id: "t_reset_timeout"
     for:
       seconds: 2
+
+  ########################################
+  # Trigger for recovery after restart/outage
+  # Reuses the ids "t_open_recovery" / "t_close_recovery" so the recovery
+  # run is picked up by the existing "Check for opening" / "Check for closing"
+  # branches (same regex match as t_open_*/t_close_*) - no separate drive
+  # logic needed, it goes through exactly the same conditions as a regular
+  # opening/closing trigger (additional conditions, time window, lockout,
+  # manual override, "only once a day").
+  ########################################
+
+  - trigger: homeassistant
+    event: start
+    enabled: "{{ recovery_mode == 'always' }}"
+    id: "t_open_recovery"
+
+  - trigger: homeassistant
+    event: start
+    enabled: "{{ recovery_mode == 'always' }}"
+    id: "t_close_recovery"
+
+  - trigger: state
+    entity_id: !input blind
+    from:
+      - unavailable
+      - unknown
+    not_to:
+      - unavailable
+      - unknown
+    enabled: "{{ recovery_mode in ['outage_only', 'always'] }}"
+    id: "t_open_recovery"
+
+  - trigger: state
+    entity_id: !input blind
+    from:
+      - unavailable
+      - unknown
+    not_to:
+      - unavailable
+      - unknown
+    enabled: "{{ recovery_mode in ['outage_only', 'always'] }}"
+    id: "t_close_recovery"
 
 ################################################################################
 # GLOBAL CONDITIONS

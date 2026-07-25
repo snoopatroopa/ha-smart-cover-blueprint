@@ -13,6 +13,7 @@ A simplified Home Assistant blueprint for automatic roller shutter and blind con
 - 👤 Presence-aware behavior
 - 🔀 Manual override protection
 - 🎯 Cover type aware: Roller shutter or blind (tilt settings only shown for blinds)
+- 🔄 Recovery after a Home Assistant restart or an outage (catches up a missed opening/closing)
 
 ## Requirements
 

@@ -4,7 +4,7 @@ blueprint:
     # 🪟 Smart Cover Blueprint
     Ein vereinfachtes Home Assistant Blueprint zur automatischen Rolladen-, Jalousie- und Markisensteuerung — basierend auf Uhrzeit, Sonnenstand, Helligkeit und Wetter.
 
-    **Version**: 2026.8.17.2
+    **Version**: 2026.8.17.3
 
     **Basierend auf**: [Cover Control Automation (CCA)](https://github.com/hvorragend/ha-blueprints) von hvorragend
     <sub>Lizenz: Open-Source. Basierend auf CCA von hvorragend.</sub>
@@ -2665,7 +2665,7 @@ trigger_variables:
 ################################################################################
 
 variables:
-  version: "2026.8.17.2"
+  version: "2026.8.17.3"
 
   # Force pause
   is_paused: "{{ force_pause != [] and states(force_pause) in ['on', 'true'] }}"
@@ -2706,6 +2706,7 @@ variables:
     current_above_close: "{{ current_position < close_position if is_awning else current_position > close_position }}"
     current_above_shading: "{{ current_position < effective_shading_position if is_awning else current_position > effective_shading_position }}"
     current_above_ventilate: "{{ current_position < ventilate_position if is_awning else current_position > ventilate_position }}"
+    current_above_privacy: "{{ current_position < privacy_position if is_awning else current_position > privacy_position }}"
 
     current_below_open: "{{ current_position > open_position if is_awning else current_position < open_position }}"
     current_below_close: "{{ current_position > close_position if is_awning else current_position < close_position }}"
@@ -6393,6 +6394,18 @@ actions:
                           - "{{ contact_window_opened != [] and states(contact_window_opened) in ['true', 'on'] }}"
                         sequence:
                           - stop: "Sichtschutz activation skipped: window fully open (lockout)"
+
+                      # Plausibility check: Sichtschutz may only ever CLOSE the cover further,
+                      # never open it. If the cover is already at or below (i.e. more closed
+                      # than) the configured Sichtschutz position, driving to that position
+                      # would raise it - e.g. a cover resting at the (lower) close_position for
+                      # the night must not pop up to a (higher) privacy_position just because
+                      # someone switches the light on. Skip the drive in that case.
+                      - alias: "Sichtschutz activation: cover already at/below privacy position - no drive (would open it)"
+                        conditions:
+                          - "{{ not position_comparisons.current_above_privacy }}"
+                        sequence:
+                          - stop: "Sichtschutz activation skipped: cover already at/below privacy position"
                     default:
                       - variables:
                           target_position: !input privacy_position

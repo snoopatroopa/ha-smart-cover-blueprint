@@ -11,6 +11,7 @@ A simplified Home Assistant blueprint for automatic roller shutter and blind con
 - 🥵 Sun shading / sun protection
 - 💨 Ventilation position via window contact sensors
 - 👤 Presence-aware behavior
+- 🙈 Privacy protection (Sichtschutz): presence + light gated cover position
 - 🔀 Manual override protection
 - 🎯 Cover type aware: Roller shutter or blind (tilt settings only shown for blinds)
 - 🔄 Recovery after a Home Assistant restart or an outage (catches up a missed opening/closing)

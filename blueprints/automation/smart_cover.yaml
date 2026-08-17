@@ -4,7 +4,7 @@ blueprint:
     # 🪟 Smart Cover Blueprint
     Ein vereinfachtes Home Assistant Blueprint zur automatischen Rolladen-, Jalousie- und Markisensteuerung — basierend auf Uhrzeit, Sonnenstand, Helligkeit und Wetter.
 
-    **Version**: 2026.7.25
+    **Version**: 2026.8.17
 
     **Basierend auf**: [Cover Control Automation (CCA)](https://github.com/hvorragend/ha-blueprints) von hvorragend
     <sub>Lizenz: Open-Source. Basierend auf CCA von hvorragend.</sub>
@@ -2590,7 +2590,7 @@ trigger_variables:
 ################################################################################
 
 variables:
-  version: "2026.7.25"
+  version: "2026.8.17"
 
   # Force pause
   is_paused: "{{ force_pause != [] and states(force_pause) in ['on', 'true'] }}"
@@ -3843,7 +3843,60 @@ actions:
             data:
               entity_id: !input cover_status_helper
               value: |-
-                  {% set current = helper_json %}
+                  {# Re-read and re-parse the helper live at write time (not the run-start
+                     snapshot `helper_json`): a delayed run (drive delay, tilt wait, ...) must
+                     merge its changes onto whatever another, faster run wrote in the meantime,
+                     instead of overwriting it with a stale picture from when this run started. #}
+                  {% set helper_state_live = states(cover_status_helper) %}
+                  {% set helper_raw_live = helper_state_live | from_json(default={}) if helper_state_live not in invalid_states and helper_state_live | regex_match("((\[[^\}]+)?\{s*[^\}\{]{3,}?:.*\}([^\{]+\])?)") else {} %}
+                  {% if helper_raw_live.v | default(0) == 5 %}
+                    {% set v5_current_live =
+                      'vfull' if helper_raw_live.vfull.a | default(0) == 1 else
+                      'vpart' if helper_raw_live.vpart.a | default(0) == 1 else
+                      'shade' if helper_raw_live.shading.a | default(0) == 1 and helper_raw_live.shading.p | default(0) == 0 else
+                      'close' if helper_raw_live.close.a | default(0) == 1 else
+                      'open' if helper_raw_live.open.a | default(0) == 1 else
+                      'none'
+                    %}
+                    {% set v5_shs_live = helper_raw_live.shading.p | default(0) | int %}
+                    {% set v5_she_live = helper_raw_live.shading.q | default(0) | int %}
+                    {% set current = {
+                      'bas': 'cls' if v5_current_live == 'close' else 'opn',
+                      'shd': 1 if v5_current_live == 'shade' else 0,
+                      'pnd': 'beg' if v5_shs_live > 0 else ('end' if v5_she_live > 0 else 'non'),
+                      'win': 'opn' if v5_current_live == 'vfull' else ('tlt' if v5_current_live == 'vpart' else 'cls'),
+                      'frc': 'non',
+                      'res': 0,
+                      'man': helper_raw_live.manual.a | default(0),
+                      'ts': {
+                        'opn': helper_raw_live.open.t | default(0),
+                        'cls': helper_raw_live.close.t | default(0),
+                        'shd': helper_raw_live.shading.t | default(0) if v5_current_live == 'shade' else 0,
+                        'due': v5_shs_live if v5_shs_live > 0 else v5_she_live,
+                        'arm': 0,
+                        'man': helper_raw_live.manual.t | default(0)
+                      }
+                    } %}
+                  {% else %}
+                    {% set raw_ts_live = helper_raw_live.ts | default({}) %}
+                    {% set current = {
+                      'bas': helper_raw_live.bas | default('opn'),
+                      'shd': helper_raw_live.shd | default(0) | int,
+                      'pnd': helper_raw_live.pnd | default('non'),
+                      'win': helper_raw_live.win | default('cls'),
+                      'frc': helper_raw_live.frc | default('non'),
+                      'res': helper_raw_live.res | default(0) | int,
+                      'man': helper_raw_live.man | default(0) | int,
+                      'ts': {
+                        'opn': raw_ts_live.opn | default(0) | int,
+                        'cls': raw_ts_live.cls | default(0) | int,
+                        'shd': raw_ts_live.shd | default(0) | int,
+                        'due': raw_ts_live.due | default(0) | int,
+                        'arm': raw_ts_live.arm | default(0) | int,
+                        'man': raw_ts_live.man | default(0) | int
+                      }
+                    } %}
+                  {% endif %}
                   {% set updates = update_values | default({}) %}
                   {% set ts_now = as_timestamp(now()) | round(0) %}
 
@@ -3977,7 +4030,7 @@ actions:
       - "{{ forecast_source.use_weather and not forecast_source.prevent_service }}"
       - "{{ states(shading_forecast_sensor) not in invalid_states }}"
       - "{{ trigger.id is defined }}"
-      - "{{ trigger.id | regex_match('^(t_shading_start|t_open_1)') }}" # Important: All triggers for shading start necessary!
+      - "{{ trigger.id | regex_match('^(t_shading_start|t_shading_end|t_open_1)') }}" # Important: All triggers for shading start AND shading end necessary!
     then:
       - action: weather.get_forecasts
         target:
@@ -4910,9 +4963,7 @@ actions:
                   - "{{ contact_window_tilted != [] }}"
                   - "{{ states(contact_window_tilted) in ['true', 'on'] }}"
                   - "{{ not lockout_tilted_when_closing }}"
-                  - or:
-                      - "{{ contact_window_opened == [] }}"
-                      - "{{ states(contact_window_opened) in ['false', 'off'] }}"
+                  - "{{ not (contact_window_opened != [] and states(contact_window_opened) in ['true', 'on']) }}"
                 sequence:
                   - variables:
                       target_position: !input ventilate_position
@@ -5486,9 +5537,7 @@ actions:
                       - "{{ ventilation_flags.after_shading_end }}"
                       - "{{ contact_window_tilted != [] }}"
                       - "{{ states(contact_window_tilted) in ['true', 'on'] }}"
-                      - or:
-                          - "{{ contact_window_opened == [] }}"
-                          - "{{ states(contact_window_opened) in ['false', 'off'] }}"
+                      - "{{ not (contact_window_opened != [] and states(contact_window_opened) in ['true', 'on']) }}"
                       - or:
                           - "{{ position_comparisons.current_below_ventilate }}"
                           - "{{ ventilation_flags.if_lower_enabled and (position_comparisons.current_above_ventilate or current_position == ventilate_position) }}"
@@ -6661,6 +6710,7 @@ actions:
                           - alias: "Force disabled recovery: return to SHADING"
                             conditions:
                               - "{{ helper_state_shade }}"
+                              - "{{ not shading_end_conditions_met }}" # Don't restore a shading that would end right now (e.g. sun already left)
                               - "{{ not (contact_window_opened != [] and states(contact_window_opened) in ['true', 'on']) and not (contact_window_tilted != [] and states(contact_window_tilted) in ['true', 'on']) }}"
                               - "{{ resident_flags.allow_shade }}"
                             sequence:

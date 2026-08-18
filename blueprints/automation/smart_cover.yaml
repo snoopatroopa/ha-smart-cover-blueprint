@@ -4,7 +4,7 @@ blueprint:
     # 🪟 Smart Cover Blueprint
     Ein vereinfachtes Home Assistant Blueprint zur automatischen Rolladen-, Jalousie- und Markisensteuerung — basierend auf Uhrzeit, Sonnenstand, Helligkeit und Wetter.
 
-    **Version**: 2026.8.17.3
+    **Version**: 2026.8.18
 
     **Basierend auf**: [Cover Control Automation (CCA)](https://github.com/hvorragend/ha-blueprints) von hvorragend
     <sub>Lizenz: Open-Source. Basierend auf CCA von hvorragend.</sub>
@@ -1941,6 +1941,12 @@ blueprint:
           <br /><br />
           Ein vollständig geöffnetes Fenster (Aussperrschutz) verhindert das Anfahren der Sichtschutzposition, genau wie bei den anderen Funktionen.
           <br /><br />
+          <strong>Zeiträume:</strong> Optional lässt sich Sichtschutz auf bis zu drei Zeiträume einschränken (z. B. nur morgens und nur abends/nachts),
+          jeder einzeln aktivierbar. Zeiträume, die über Mitternacht gehen (z. B. 22:00–06:00), werden korrekt behandelt.
+          Ist <strong>kein</strong> Zeitraum aktiviert, funktioniert Sichtschutz wie bisher rund um die Uhr.
+          Die Zeiträume gelten nur für das <em>Aktivieren</em> — hat Sichtschutz einmal ausgelöst, wird beim Verlassen des Raums
+          oder Ausschalten des Lichts immer normal freigegeben, auch außerhalb der Zeiträume.
+          <br /><br />
           Alle Einstellungen sind optional — ohne Präsenzmelder und Lampe bleibt die Funktion inaktiv.
         </small></p></center>
       icon: mdi:eye-off
@@ -1991,6 +1997,69 @@ blueprint:
               min: 0.0
               max: 100.0
               unit_of_measurement: "%"
+
+        privacy_time_1_enabled:
+          name: "🕐 Zeitraum 1 aktivieren"
+          description: "Schränkt das Aktivieren von Sichtschutz auf den unten definierten Zeitraum 1 ein."
+          default: false
+          selector:
+            boolean: {}
+
+        privacy_time_1_start:
+          name: "🕐 Zeitraum 1 – Von"
+          description: "Beginn von Zeitraum 1."
+          default: "00:00:00"
+          selector:
+            time: {}
+
+        privacy_time_1_end:
+          name: "🕐 Zeitraum 1 – Bis"
+          description: "Ende von Zeitraum 1. Liegt 'Bis' vor 'Von', geht der Zeitraum über Mitternacht (z. B. 22:00 → 06:00)."
+          default: "23:59:59"
+          selector:
+            time: {}
+
+        privacy_time_2_enabled:
+          name: "🕑 Zeitraum 2 aktivieren"
+          description: "Schränkt das Aktivieren von Sichtschutz zusätzlich auf den unten definierten Zeitraum 2 ein."
+          default: false
+          selector:
+            boolean: {}
+
+        privacy_time_2_start:
+          name: "🕑 Zeitraum 2 – Von"
+          description: "Beginn von Zeitraum 2."
+          default: "00:00:00"
+          selector:
+            time: {}
+
+        privacy_time_2_end:
+          name: "🕑 Zeitraum 2 – Bis"
+          description: "Ende von Zeitraum 2. Liegt 'Bis' vor 'Von', geht der Zeitraum über Mitternacht."
+          default: "23:59:59"
+          selector:
+            time: {}
+
+        privacy_time_3_enabled:
+          name: "🕒 Zeitraum 3 aktivieren"
+          description: "Schränkt das Aktivieren von Sichtschutz zusätzlich auf den unten definierten Zeitraum 3 ein."
+          default: false
+          selector:
+            boolean: {}
+
+        privacy_time_3_start:
+          name: "🕒 Zeitraum 3 – Von"
+          description: "Beginn von Zeitraum 3."
+          default: "00:00:00"
+          selector:
+            time: {}
+
+        privacy_time_3_end:
+          name: "🕒 Zeitraum 3 – Bis"
+          description: "Ende von Zeitraum 3. Liegt 'Bis' vor 'Von', geht der Zeitraum über Mitternacht."
+          default: "23:59:59"
+          selector:
+            time: {}
 
     override_section:
       name: "Manuelle Übersteuerung"
@@ -2492,6 +2561,15 @@ trigger_variables:
   privacy_light: !input privacy_light
   privacy_position: !input privacy_position
   privacy_tilt_position: !input privacy_tilt_position
+  privacy_time_1_enabled: !input privacy_time_1_enabled
+  privacy_time_1_start: !input privacy_time_1_start
+  privacy_time_1_end: !input privacy_time_1_end
+  privacy_time_2_enabled: !input privacy_time_2_enabled
+  privacy_time_2_start: !input privacy_time_2_start
+  privacy_time_2_end: !input privacy_time_2_end
+  privacy_time_3_enabled: !input privacy_time_3_enabled
+  privacy_time_3_start: !input privacy_time_3_start
+  privacy_time_3_end: !input privacy_time_3_end
 
   # Position source configuration
   position_source: !input position_source
@@ -2665,7 +2743,7 @@ trigger_variables:
 ################################################################################
 
 variables:
-  version: "2026.8.17.3"
+  version: "2026.8.18"
 
   # Force pause
   is_paused: "{{ force_pause != [] and states(force_pause) in ['on', 'true'] }}"
@@ -3083,8 +3161,36 @@ variables:
   state_privacy_light_on: >-
     {{ privacy_light != [] and states(privacy_light) not in invalid_states and states(privacy_light) in ['on', 'true'] }}
 
-  # Live "should Sichtschutz be active right now" flag - presence AND light.
-  is_privacy_active: "{{ is_privacy_enabled and state_privacy_presence and state_privacy_light_on }}"
+  # Up to three optional time windows restricting WHEN Sichtschutz may activate.
+  # If none of the three is enabled, Sichtschutz works around the clock (unchanged
+  # behavior). Each window handles midnight wraparound (end < start, e.g. 22:00-06:00)
+  # via plain time-of-day comparison - no date arithmetic needed. This only gates
+  # activation; releasing an already-active Sichtschutz always works, see below.
+  is_privacy_time_ok: >-
+    {% set now_t = now().time() %}
+    {% set ranges = [
+      (privacy_time_1_enabled, privacy_time_1_start, privacy_time_1_end),
+      (privacy_time_2_enabled, privacy_time_2_start, privacy_time_2_end),
+      (privacy_time_3_enabled, privacy_time_3_start, privacy_time_3_end)
+    ] %}
+    {% set enabled_ranges = ranges | selectattr(0) | list %}
+    {% if enabled_ranges | count == 0 %}
+      {{ true }}
+    {% else %}
+      {% set ns = namespace(match=false) %}
+      {% for enabled, start, end in enabled_ranges %}
+        {% set start_t = strptime(start, '%H:%M:%S').time() %}
+        {% set end_t = strptime(end, '%H:%M:%S').time() %}
+        {% set in_range = (now_t >= start_t and now_t < end_t) if start_t < end_t else (now_t >= start_t or now_t < end_t) %}
+        {% if in_range %}
+          {% set ns.match = true %}
+        {% endif %}
+      {% endfor %}
+      {{ ns.match }}
+    {% endif %}
+
+  # Live "should Sichtschutz be active right now" flag - presence AND light AND (if configured) time window.
+  is_privacy_active: "{{ is_privacy_enabled and state_privacy_presence and state_privacy_light_on and is_privacy_time_ok }}"
 
   # EFFECTIVE STATE - The actual state the cover should be in based on priority cascade
   # Replaces v5's state_current (which was just an alias with old names vpart/vfull)
@@ -6375,9 +6481,9 @@ actions:
                 {% endif %}
               privacy_now_active: >-
                 {% if trigger.id == 't_privacy_presence_update' %}
-                  {{ is_privacy_enabled and trigger.to_state.state in ['on', 'true'] and state_privacy_light_on }}
+                  {{ is_privacy_enabled and trigger.to_state.state in ['on', 'true'] and state_privacy_light_on and is_privacy_time_ok }}
                 {% else %}
-                  {{ is_privacy_enabled and state_privacy_presence and trigger.to_state.state in ['on', 'true'] }}
+                  {{ is_privacy_enabled and state_privacy_presence and trigger.to_state.state in ['on', 'true'] and is_privacy_time_ok }}
                 {% endif %}
 
           - choose:

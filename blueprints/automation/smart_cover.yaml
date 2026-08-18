@@ -4,7 +4,7 @@ blueprint:
     # 🪟 Smart Cover Blueprint
     Ein vereinfachtes Home Assistant Blueprint zur automatischen Rolladen-, Jalousie- und Markisensteuerung — basierend auf Uhrzeit, Sonnenstand, Helligkeit und Wetter.
 
-    **Version**: 2026.8.18
+    **Version**: 2026.8.18.1
 
     **Basierend auf**: [Cover Control Automation (CCA)](https://github.com/hvorragend/ha-blueprints) von hvorragend
     <sub>Lizenz: Open-Source. Basierend auf CCA von hvorragend.</sub>
@@ -1947,6 +1947,10 @@ blueprint:
           Die Zeiträume gelten nur für das <em>Aktivieren</em> — hat Sichtschutz einmal ausgelöst, wird beim Verlassen des Raums
           oder Ausschalten des Lichts immer normal freigegeben, auch außerhalb der Zeiträume.
           <br /><br />
+          <strong>Beleuchtungsstärke (alternativ zu Zeiträumen):</strong> Statt (oder zusätzlich zu) Zeiträumen kann ein
+          Beleuchtungsstärke-Sensor gewählt werden — Sichtschutz darf dann auch bei ausreichender Dunkelheit aktivieren,
+          unabhängig von der Uhrzeit. Sind beide konfiguriert, genügt jeweils eine Bedingung (Uhrzeit ODER Helligkeit).
+          <br /><br />
           Alle Einstellungen sind optional — ohne Präsenzmelder und Lampe bleibt die Funktion inaktiv.
         </small></p></center>
       icon: mdi:eye-off
@@ -2060,6 +2064,39 @@ blueprint:
           default: "23:59:59"
           selector:
             time: {}
+
+        privacy_brightness_sensor:
+          name: "🔆 Beleuchtungsstärke-Sensor (Sichtschutz)"
+          description: >-
+            Optionaler Alternativ-Auslöser zu den Zeiträumen oben: Sichtschutz darf auch dann aktivieren,
+            wenn die gemessene Beleuchtungsstärke unter dem unten eingestellten Schwellwert liegt — unabhängig
+            von der Uhrzeit. Sind sowohl Zeiträume als auch dieser Sensor konfiguriert, genügt jeweils EINE
+            der beiden Bedingungen (Uhrzeit ODER Helligkeit).
+            <br /><br />
+            ⚠️ <strong>Wichtig:</strong> Damit die Lampe selbst die Messung nicht verfälscht, wird nicht der
+            aktuelle Sensorwert verwendet, sondern der zuletzt gemessene Wert von <em>vor</em> dem Einschalten
+            der Lampe (siehe unten). Am zuverlässigsten ist ein Sensor, der nicht vom Lampenlicht selbst
+            beeinflusst wird (z. B. am Fenster statt direkt unter der Lampe).
+            <br /><br />
+            Leer lassen um die Helligkeits-Bedingung zu deaktivieren (dann zählt nur die Uhrzeit, falls konfiguriert).
+          default: []
+          selector:
+            entity:
+              domain: sensor
+              device_class: illuminance
+
+        privacy_brightness_threshold:
+          name: "🔆 Beleuchtungsstärke-Schwellwert (Sichtschutz)"
+          description: >-
+            Sichtschutz darf aktivieren, wenn die zuletzt vor dem Lampenlicht gemessene Beleuchtungsstärke
+            <ins>unter</ins> diesem Wert liegt (in Lux, je nach Sensor).
+          default: 50
+          selector:
+            number:
+              min: 0
+              max: 2000
+              unit_of_measurement: "lx"
+              mode: slider
 
     override_section:
       name: "Manuelle Übersteuerung"
@@ -2570,6 +2607,8 @@ trigger_variables:
   privacy_time_3_enabled: !input privacy_time_3_enabled
   privacy_time_3_start: !input privacy_time_3_start
   privacy_time_3_end: !input privacy_time_3_end
+  privacy_brightness_sensor: !input privacy_brightness_sensor
+  privacy_brightness_threshold: !input privacy_brightness_threshold
 
   # Position source configuration
   position_source: !input position_source
@@ -2743,7 +2782,7 @@ trigger_variables:
 ################################################################################
 
 variables:
-  version: "2026.8.18"
+  version: "2026.8.18.1"
 
   # Force pause
   is_paused: "{{ force_pause != [] and states(force_pause) in ['on', 'true'] }}"
@@ -2999,8 +3038,8 @@ variables:
   # ═══════════════════════════════════════════════════════════════════════════
   # Cover Status Helper – JSON parsing with v5 → v6 migration
   # ═══════════════════════════════════════════════════════════════════════════
-  # v6 Compact Schema (stored in input_text, max 208 chars):
-  # {"bas":"opn","shd":0,"pnd":"non","win":"cls","frc":"non","res":0,"man":0,"ts":{"opn":0,"cls":0,"shd":0,"due":0,"arm":0,"man":0},"v":6,"t":0}
+  # v6 Compact Schema (stored in input_text, max ~216 chars worst-case):
+  # {"bas":"opn","shd":0,"pnd":"non","win":"cls","frc":"non","res":0,"man":0,"ts":{"opn":0,"cls":0,"shd":0,"due":0,"arm":0,"man":0},"pbr":-1,"v":6,"t":0}
   #
   # Field mapping (compact → internal):
   #   bas → base (opn/cls → open/close)
@@ -3014,8 +3053,12 @@ variables:
   #   ts.due → fire time of armed pending (used together with pnd)
   #   ts.arm → first-arming anchor of current retry sequence
   #   ts.man → ts.manual
+  #   pbr → privacy brightness baseline: last brightness_sensor reading recorded
+  #         while the Sichtschutz light was OFF (-1 = none captured yet). Frozen
+  #         while the light is on, so it always reflects the room BEFORE the
+  #         lamp affected the reading - see "Privacy brightness baseline tracker".
   #
-  # TODO: Potential v7 expansion fields (~46-106 chars remaining in input_text):
+  # TODO: Potential v7 expansion fields (~34-94 chars remaining in input_text):
   #   lp  → last_position (+8 chars) – Position before last action (smart recovery)
   #   lt  → last_trigger  (+6 chars) – Which trigger caused last action (debug)
   #   tp  → tilt_position  (+5 chars) – Last applied tilt value (fixes in_shading_position volatility)
@@ -3060,6 +3103,7 @@ variables:
             'arm': 0,
             'man': helper_raw.manual.t | default(0)
           },
+          'pbr': -1,
           'v': 6,
           't': ts_now
         }
@@ -3083,6 +3127,7 @@ variables:
             'arm': raw_ts.arm | default(0) | int,
             'man': raw_ts.man | default(0) | int
           },
+          'pbr': helper_raw.pbr | default(-1) | int,
           'v': 6,
           't': helper_raw.t | default(ts_now) | int
         }
@@ -3105,6 +3150,7 @@ variables:
             'arm': 0,
             'man': 0
           },
+          'pbr': -1,
           'v': 6,
           't': ts_now
         }
@@ -3161,36 +3207,53 @@ variables:
   state_privacy_light_on: >-
     {{ privacy_light != [] and states(privacy_light) not in invalid_states and states(privacy_light) in ['on', 'true'] }}
 
+  # Is the cover currently at/below (darker than) the configured brightness
+  # threshold? Uses the FROZEN baseline (pbr, see "Privacy brightness baseline
+  # tracker" below), never the live sensor reading - the live reading could
+  # already be inflated by the very lamp Sichtschutz reacts to. -1 = no
+  # baseline captured yet -> treated as "not dark enough" (fail closed).
+  privacy_brightness_restriction_active: "{{ privacy_brightness_sensor != [] }}"
+  privacy_brightness_baseline: "{{ helper_json.pbr | default(-1) | int }}"
+  privacy_brightness_ok: >-
+    {{ privacy_brightness_restriction_active and privacy_brightness_baseline >= 0
+       and privacy_brightness_baseline < (privacy_brightness_threshold | int) }}
+
   # Up to three optional time windows restricting WHEN Sichtschutz may activate.
-  # If none of the three is enabled, Sichtschutz works around the clock (unchanged
-  # behavior). Each window handles midnight wraparound (end < start, e.g. 22:00-06:00)
-  # via plain time-of-day comparison - no date arithmetic needed. This only gates
-  # activation; releasing an already-active Sichtschutz always works, see below.
-  is_privacy_time_ok: >-
+  # Each window handles midnight wraparound (end < start, e.g. 22:00-06:00) via
+  # plain time-of-day comparison - no date arithmetic needed.
+  privacy_time_restriction_active: >-
+    {{ [privacy_time_1_enabled, privacy_time_2_enabled, privacy_time_3_enabled] | select | list | count > 0 }}
+  privacy_time_matches: >-
     {% set now_t = now().time() %}
     {% set ranges = [
       (privacy_time_1_enabled, privacy_time_1_start, privacy_time_1_end),
       (privacy_time_2_enabled, privacy_time_2_start, privacy_time_2_end),
       (privacy_time_3_enabled, privacy_time_3_start, privacy_time_3_end)
     ] %}
-    {% set enabled_ranges = ranges | selectattr(0) | list %}
-    {% if enabled_ranges | count == 0 %}
+    {% set ns = namespace(match=false) %}
+    {% for enabled, start, end in ranges | selectattr(0) | list %}
+      {% set start_t = strptime(start, '%H:%M:%S').time() %}
+      {% set end_t = strptime(end, '%H:%M:%S').time() %}
+      {% set in_range = (now_t >= start_t and now_t < end_t) if start_t < end_t else (now_t >= start_t or now_t < end_t) %}
+      {% if in_range %}
+        {% set ns.match = true %}
+      {% endif %}
+    {% endfor %}
+    {{ ns.match }}
+
+  # Combined activation gate: time window OR brightness threshold - either one
+  # configured and matching is enough. If NEITHER is configured, Sichtschutz
+  # works around the clock (unchanged legacy behavior). This only gates
+  # activation; releasing an already-active Sichtschutz always works, see below.
+  is_privacy_schedule_ok: >-
+    {% if not privacy_time_restriction_active and not privacy_brightness_restriction_active %}
       {{ true }}
     {% else %}
-      {% set ns = namespace(match=false) %}
-      {% for enabled, start, end in enabled_ranges %}
-        {% set start_t = strptime(start, '%H:%M:%S').time() %}
-        {% set end_t = strptime(end, '%H:%M:%S').time() %}
-        {% set in_range = (now_t >= start_t and now_t < end_t) if start_t < end_t else (now_t >= start_t or now_t < end_t) %}
-        {% if in_range %}
-          {% set ns.match = true %}
-        {% endif %}
-      {% endfor %}
-      {{ ns.match }}
+      {{ (privacy_time_restriction_active and privacy_time_matches) or (privacy_brightness_restriction_active and privacy_brightness_ok) }}
     {% endif %}
 
-  # Live "should Sichtschutz be active right now" flag - presence AND light AND (if configured) time window.
-  is_privacy_active: "{{ is_privacy_enabled and state_privacy_presence and state_privacy_light_on and is_privacy_time_ok }}"
+  # Live "should Sichtschutz be active right now" flag - presence AND light AND (if configured) time/brightness window.
+  is_privacy_active: "{{ is_privacy_enabled and state_privacy_presence and state_privacy_light_on and is_privacy_schedule_ok }}"
 
   # EFFECTIVE STATE - The actual state the cover should be in based on priority cascade
   # Replaces v5's state_current (which was just an alias with old names vpart/vfull)
@@ -3480,6 +3543,13 @@ triggers:
     entity_id: !input privacy_light
     enabled: "{{ is_privacy_enabled }}"
     id: "t_privacy_light_update"
+
+  # Privacy (Sichtschutz): brightness sensor changes, to keep the pre-light
+  # baseline (helper.pbr) fresh - see "Privacy brightness baseline tracker".
+  - trigger: state
+    entity_id: !input privacy_brightness_sensor
+    enabled: "{{ is_privacy_enabled and privacy_brightness_sensor != [] }}"
+    id: "t_privacy_brightness_baseline_update"
 
   - trigger: state
     entity_id: !input auto_up_force
@@ -4098,7 +4168,8 @@ actions:
                         'due': v5_shs_live if v5_shs_live > 0 else v5_she_live,
                         'arm': 0,
                         'man': helper_raw_live.manual.t | default(0)
-                      }
+                      },
+                      'pbr': -1
                     } %}
                   {% else %}
                     {% set raw_ts_live = helper_raw_live.ts | default({}) %}
@@ -4117,7 +4188,8 @@ actions:
                         'due': raw_ts_live.due | default(0) | int,
                         'arm': raw_ts_live.arm | default(0) | int,
                         'man': raw_ts_live.man | default(0) | int
-                      }
+                      },
+                      'pbr': helper_raw_live.pbr | default(-1) | int
                     } %}
                   {% endif %}
                   {% set updates = update_values | default({}) %}
@@ -4130,6 +4202,7 @@ actions:
                   {% set new_frc = updates.frc | default(current.frc | default('non')) %}
                   {% set new_res = updates.res | default(current.res | default(0)) | int %}
                   {% set new_man = updates.man | default(current.man | default(0)) | int %}
+                  {% set new_pbr = updates.pbr | default(current.pbr | default(-1)) | int %}
                   {% set current_ts = current.ts | default({}) %}
 
                   {% set merged_ts = namespace(data={}) %}
@@ -4161,6 +4234,7 @@ actions:
                       'arm': merged_ts.data.arm | default(0) | int,
                       'man': merged_ts.data.man | default(0) | int
                     },
+                    'pbr': new_pbr | int,
                     'v': 6,
                     't': ts_now | int
                   } %}
@@ -4218,6 +4292,7 @@ actions:
                 'arm': 0,
                 'man': 0
               },
+              'pbr': -1,
               'v': 6,
               't': ts_now | int
             } %}
@@ -4967,12 +5042,12 @@ actions:
           entity_id: "{{ cover_status_helper }}"
 
   - if:
-      - "{{ check_status_helper_length is not none and check_status_helper_length | int < 210 }}"
+      - "{{ check_status_helper_length is not none and check_status_helper_length | int < 225 }}"
     then:
       - action: system_log.write
         data:
           message: >-
-            Cover Control Automation ({{ friendly_name }}): CRITICAL CONFIGURATION ERROR - Cover Status Helper max length is {{ check_status_helper_length }} characters but at least 210 are required (recommended: 254).
+            Cover Control Automation ({{ friendly_name }}): CRITICAL CONFIGURATION ERROR - Cover Status Helper max length is {{ check_status_helper_length }} characters but at least 225 are required (recommended: 254).
             Helper: {{ cover_status_helper }}
             The automation cannot persist state with the current max length. Increase the 'Maximum length' setting of the input_text helper.
           level: error
@@ -4980,7 +5055,7 @@ actions:
         data:
           name: "Cover Control Automation"
           message: >-
-            ❌ {{ friendly_name }}: Cover Status Helper max length too small ({{ check_status_helper_length }}/210). Increase to at least 254.
+            ❌ {{ friendly_name }}: Cover Status Helper max length too small ({{ check_status_helper_length }}/225). Increase to at least 254.
           entity_id: "{{ cover_status_helper }}"
       - stop: "Cover Status Helper max length too small"
 
@@ -6457,15 +6532,42 @@ actions:
               - *helper_update
 
       ############################################################
+      # BRANCH (6a): PRIVACY (SICHTSCHUTZ) BRIGHTNESS BASELINE TRACKER
+      #   Keeps helper.pbr (last brightness_sensor reading recorded while the
+      #   Sichtschutz light was OFF) fresh, so the activation check in the
+      #   next branch never has to trust a live reading the lamp itself may
+      #   already have inflated. Only updates the baseline while the light
+      #   is off; while it's on, the last pre-light value stays frozen.
+      ############################################################
+
+      - alias: "Privacy brightness baseline tracker"
+        conditions:
+          - "{{ trigger.id == 't_privacy_brightness_baseline_update' }}"
+          - "{{ not state_privacy_light_on }}"
+          - "{{ trigger.to_state is not none }}"
+          - "{{ trigger.to_state.state not in invalid_states }}"
+          - "{{ is_number(trigger.to_state.state) }}"
+        sequence:
+          - variables:
+              update_values:
+                pbr: "{{ trigger.to_state.state | float | round(0) | int }}"
+          - *helper_update
+
+      ############################################################
       # BRANCH (6b): PRIVACY (SICHTSCHUTZ)
       #   Presence + light gated overlay, independent of the resident sensor.
       #   Activates: presence turns on while the light is already on (or vice
-      #   versa) -> drive to the configured privacy position.
+      #   versa) -> drive to the configured privacy position. Only allowed
+      #   within a configured time window and/or brightness threshold, if any
+      #   are configured (is_privacy_schedule_ok) - see the brightness
+      #   baseline tracker above and helper.pbr for the "before the lamp"
+      #   brightness reading.
       #   Releases: presence turns off, or the light turns off while presence
       #   is still on -> drive to whatever the regular schedule/shading/
       #   ventilation currently wants (same resolution as "Resident leaving").
-      #   No persisted flag is stored in the status helper - is_privacy_active
-      #   is always derived live from the two entities.
+      #   No separate "am I active" flag is stored in the status helper -
+      #   is_privacy_active is always derived live from the two entities
+      #   (plus the persisted brightness baseline).
       ############################################################
 
       - alias: "Privacy (Sichtschutz) status change handler"
@@ -6481,9 +6583,9 @@ actions:
                 {% endif %}
               privacy_now_active: >-
                 {% if trigger.id == 't_privacy_presence_update' %}
-                  {{ is_privacy_enabled and trigger.to_state.state in ['on', 'true'] and state_privacy_light_on and is_privacy_time_ok }}
+                  {{ is_privacy_enabled and trigger.to_state.state in ['on', 'true'] and state_privacy_light_on and is_privacy_schedule_ok }}
                 {% else %}
-                  {{ is_privacy_enabled and state_privacy_presence and trigger.to_state.state in ['on', 'true'] and is_privacy_time_ok }}
+                  {{ is_privacy_enabled and state_privacy_presence and trigger.to_state.state in ['on', 'true'] and is_privacy_schedule_ok }}
                 {% endif %}
 
           - choose:
@@ -7523,8 +7625,8 @@ actions:
 
                 # ========== ENTITY ATTRIBUTE & STATE CHECKS ==========
 
-                - condition: "{{ check_status_helper_length is not none and check_status_helper_length | int < 210 }}"
-                  message: "CRITICAL: Cover Status Helper max length is {{ check_status_helper_length }}. Required: at least 210 characters (recommended: 254). Increase the 'Maximum length' of the input_text helper. Current length causes data truncation and the automation cannot persist state"
+                - condition: "{{ check_status_helper_length is not none and check_status_helper_length | int < 225 }}"
+                  message: "CRITICAL: Cover Status Helper max length is {{ check_status_helper_length }}. Required: at least 225 characters (recommended: 254). Increase the 'Maximum length' of the input_text helper. Current length causes data truncation and the automation cannot persist state"
                 - condition: "{{ state_attr(blind, 'current_position') is none }}"
                   message: "Cover entity is missing the required 'current_position' attribute"
                 - condition: "{{ state_attr(default_sun_sensor, 'elevation') is none }}"
